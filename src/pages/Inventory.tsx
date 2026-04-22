@@ -458,7 +458,7 @@ export default function Inventory() {
                       <div className="px-3 py-1 rounded-full bg-slate-900/60 backdrop-blur-md text-[10px] font-black text-white uppercase border border-white/10 tracking-widest">
                         {p.type === 'service' ? 'خدمة' : 'منتج'} | {CATEGORIES.find(c => c.id === p.category)?.label || p.category}
                       </div>
-                      {p.sellingPrice > p.wholesalePrice && (
+                      {isOwner && p.sellingPrice > p.wholesalePrice && (
                         <div className="px-3 py-1 rounded-full bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest flex items-center gap-1 shadow-lg shadow-emerald-500/20">
                           <span>%{Math.round(((p.sellingPrice - p.wholesalePrice) / p.wholesalePrice) * 100)} ربح</span>
                         </div>
@@ -564,9 +564,9 @@ export default function Inventory() {
                     <th className="p-5 text-[10px] font-black uppercase tracking-widest text-slate-400">الاسم / الكود</th>
                     <th className="p-5 text-[10px] font-black uppercase tracking-widest text-slate-400">القسم</th>
                     <th className="p-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">المخزون (عرض/مخزن)</th>
-                    <th className="p-5 text-[10px] font-black uppercase tracking-widest text-slate-400">سعر الجملة</th>
+                    {isOwner && <th className="p-5 text-[10px] font-black uppercase tracking-widest text-slate-400">سعر الجملة</th>}
                     <th className="p-5 text-[10px] font-black uppercase tracking-widest text-slate-400">سعر البيع</th>
-                    <th className="p-5 text-[10px] font-black uppercase tracking-widest text-slate-400">الربح (%)</th>
+                    {isOwner && <th className="p-5 text-[10px] font-black uppercase tracking-widest text-slate-400">الربح (%)</th>}
                     {isOwner && <th className="p-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">الإجراءات</th>}
                   </tr>
                 </thead>
@@ -624,15 +624,17 @@ export default function Inventory() {
                             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">إجمالي: {p.quantity + (p.backroomQuantity || 0)}</span>
                           </div>
                         </td>
-                        <td className="p-5 font-black text-sm text-emerald-600">{formatCurrency(p.wholesalePrice)}</td>
+                        {isOwner && <td className="p-5 font-black text-sm text-emerald-600">{formatCurrency(p.wholesalePrice)}</td>}
                         <td className="p-5 font-black text-sm text-primary">{formatCurrency(p.sellingPrice)}</td>
-                        <td className="p-5">
-                           {p.sellingPrice > p.wholesalePrice ? (
-                             <span className="text-[10px] font-black text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-lg">
-                               %{Math.round(((p.sellingPrice - p.wholesalePrice) / p.wholesalePrice) * 100)} ربح
-                             </span>
-                           ) : <span className="text-slate-300">--</span>}
-                        </td>
+                        {isOwner && (
+                          <td className="p-5">
+                             {p.sellingPrice > p.wholesalePrice ? (
+                               <span className="text-[10px] font-black text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-lg">
+                                 %{Math.round(((p.sellingPrice - p.wholesalePrice) / p.wholesalePrice) * 100)} ربح
+                               </span>
+                             ) : <span className="text-slate-300">--</span>}
+                          </td>
+                        )}
                         {isOwner && (
                           <td className="p-5">
                             <div className="flex items-center justify-center gap-2">
@@ -806,10 +808,12 @@ function QuickViewModal({ product, onClose }: { product: Product, onClose: () =>
               <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-1">سعر البيع</p>
               <p className="text-lg font-black text-primary">{formatCurrency(product.sellingPrice)}</p>
             </div>
-            <div className="bg-emerald-500/5 p-4 rounded-2xl">
-              <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-1">سعر الجملة</p>
-              <p className="text-sm font-black text-emerald-600">{formatCurrency(product.wholesalePrice)}</p>
-            </div>
+            {isOwner && (
+              <div className="bg-emerald-500/5 p-4 rounded-2xl">
+                <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-1">سعر الجملة</p>
+                <p className="text-sm font-black text-emerald-600">{formatCurrency(product.wholesalePrice)}</p>
+              </div>
+            )}
           </div>
 
           <div className="space-y-4">
@@ -1072,19 +1076,21 @@ function ProductModal({
               )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase text-slate-400 px-1 text-primary">
-                    {data.type === 'service' ? 'تكلفة الخدمة (Wholesale)' : 'سعر الجملة (التكلفة)'}
-                  </label>
-                  <input 
-                    required
-                    type="number" 
-                    value={data.wholesalePrice || ''}
-                    onChange={(e) => setData(prev => ({ ...prev, wholesalePrice: Number(e.target.value) }))}
-                    className="w-full bg-primary/5 border border-primary/20 rounded-2xl p-4 font-black outline-none focus:ring-4 focus:ring-primary/10 transition-all text-primary"
-                    placeholder="0.00"
-                  />
-                </div>
+                {isOwner && (
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase text-slate-400 px-1 text-primary">
+                      {data.type === 'service' ? 'تكلفة الخدمة (Wholesale)' : 'سعر الجملة (التكلفة)'}
+                    </label>
+                    <input 
+                      required
+                      type="number" 
+                      value={data.wholesalePrice || ''}
+                      onChange={(e) => setData(prev => ({ ...prev, wholesalePrice: Number(e.target.value) }))}
+                      className="w-full bg-primary/5 border border-primary/20 rounded-2xl p-4 font-black outline-none focus:ring-4 focus:ring-primary/10 transition-all text-primary"
+                      placeholder="0.00"
+                    />
+                  </div>
+                )}
 
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase text-slate-400 px-1 text-emerald-500">

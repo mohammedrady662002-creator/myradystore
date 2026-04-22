@@ -416,7 +416,7 @@ function TransactionModal({ onClose, onSave, initialData }: { onClose: () => voi
           <div className="space-y-2">
             <label className="text-[10px] font-black text-emerald-600 uppercase">إضافة الأرباح إلى حساب:</label>
             <div className="flex gap-2">
-              {ACCOUNTS.map(acc => (
+              {ACCOUNTS.filter(a => a.id !== 'debt').map(acc => (
                 <button
                   key={acc.id}
                   onClick={() => setData(prev => ({ ...prev, profitAccount: acc.id }))}
