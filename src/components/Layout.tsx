@@ -272,7 +272,7 @@ export default function Layout({ children, activeTab, setActiveTab }: {
           </header>
 
           {/* Tab Content */}
-          <main className="flex-1 p-4 lg:p-8 overflow-y-auto custom-scrollbar pb-24 lg:pb-8">
+          <main className="flex-1 p-4 lg:p-8 overflow-y-auto custom-scrollbar pb-32 lg:pb-8">
             <motion.div
               key={activeTab}
               initial={{ opacity: 0, y: 10 }}
@@ -284,7 +284,7 @@ export default function Layout({ children, activeTab, setActiveTab }: {
           </main>
 
           {/* Bottom Nav - Mobile Only - Native Feel */}
-          <nav className="fixed bottom-6 left-4 right-4 h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl lg:hidden flex items-center justify-around px-2 z-[100] rounded-3xl border border-white/20 shadow-[0_20px_50px_rgba(0,0,0,0.3)] transition-transform duration-300">
+          <nav className="fixed bottom-4 left-4 right-4 h-16 bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl lg:hidden flex items-center justify-around px-2 z-[200] rounded-3xl border border-white/20 shadow-[0_20px_50px_rgba(0,0,0,0.3)] transition-transform duration-300">
             {filteredNavItems.slice(0, 5).map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;

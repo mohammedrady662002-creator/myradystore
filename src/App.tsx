@@ -222,12 +222,12 @@ export default function App() {
       <div className="relative">
         
         {/* Undo / Redo / Quick Actions (Optional extension point) */}
-        <div className="fixed bottom-24 lg:bottom-10 left-10 z-[80] flex flex-col gap-3 print:hidden">
+        <div className="fixed bottom-32 lg:bottom-10 left-6 sm:left-10 z-[80] flex flex-col gap-3 print:hidden">
           <button 
             onClick={() => setShowSettings(true)}
-            className="p-4 bg-white dark:bg-slate-900 rounded-full shadow-2xl border border-slate-100 dark:border-white/5 text-slate-400 hover:text-primary transition-all hover:rotate-90"
+            className="p-3 sm:p-4 bg-white dark:bg-slate-900 rounded-full shadow-2xl border border-slate-100 dark:border-white/5 text-slate-400 hover:text-primary transition-all hover:rotate-90"
           >
-            <Settings size={24} />
+            <Settings size={20} className="sm:w-6 sm:h-6" />
           </button>
         </div>
 

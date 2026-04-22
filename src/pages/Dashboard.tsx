@@ -167,7 +167,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="xl:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6 relative z-10">
+        <div className="xl:col-span-2 grid grid-cols-1 lg:grid-cols-2 gap-6 relative z-10">
           <div className="glass p-8 rounded-[2.5rem] relative group luxury-shadow border border-white/5 overflow-hidden">
             <div className="absolute top-0 left-0 w-1 h-full bg-rose-500 opacity-20" />
             <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-4 text-slate-400">إجمالي الديون (الشكك)</p>

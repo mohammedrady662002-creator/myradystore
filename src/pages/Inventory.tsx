@@ -177,7 +177,7 @@ export default function Inventory() {
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}
-            className="fixed bottom-24 lg:bottom-10 left-1/2 -translate-x-1/2 z-[100] bg-slate-900 dark:bg-slate-800 text-white px-8 py-5 rounded-[2.5rem] shadow-2xl flex items-center gap-8 border border-white/10"
+            className="fixed bottom-28 lg:bottom-10 left-1/2 -translate-x-1/2 z-[150] bg-slate-900 dark:bg-slate-800 text-white px-8 py-5 rounded-[2.5rem] shadow-2xl flex items-center gap-8 border border-white/10"
           >
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center font-black text-xs text-white">
@@ -415,7 +415,7 @@ export default function Inventory() {
       {/* Content Area (Grid or List) */}
       {filteredProducts.length > 0 ? (
         viewType === 'grid' ? (
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
             <AnimatePresence mode="popLayout">
               {filteredProducts.map((p, i) => (
                 <motion.div
@@ -539,7 +539,7 @@ export default function Inventory() {
                           onClick={() => { setEditingProduct(p); setIsModalOpen(true); }}
                           className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 hover:bg-primary/10 hover:text-primary transition-all text-[10px] font-black uppercase tracking-wider"
                         >
-                          <Edit size={14} /> تعديل
+                          <Edit size={14} /> <span className="hidden sm:inline">تعديل</span>
                         </button>
                         <button 
                           onClick={() => setProductToDelete(p)}
