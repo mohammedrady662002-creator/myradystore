@@ -43,6 +43,7 @@ CREATE TABLE transactions (
   type TEXT,
   source_account TEXT,
   destination_account TEXT,
+  profit_account TEXT,
   amount NUMERIC DEFAULT 0,
   commission NUMERIC DEFAULT 0,
   notes TEXT,
