@@ -141,6 +141,7 @@ export interface StoreState {
   
   // Bulk Actions
   bulkDeleteProducts: (ids: string[]) => Promise<void>;
+  migrateExistingProductsToService: () => Promise<void>;
   
   // Data Import
   importBulkData: (data: { products?: any[], sales?: any[], transactions?: any[], customers?: any[] }) => Promise<void>;
@@ -420,6 +421,31 @@ export const useStore = create<StoreState>()(
           if (error) throw error;
         } catch (err) {
           set({ products: previousProducts });
+          throw err;
+        }
+      },
+
+      migrateExistingProductsToService: async () => {
+        try {
+          // SQL representation for user: UPDATE products SET type = 'service';
+          const { error } = await supabase
+            .from('products')
+            .update({ type: 'service' })
+            .filter('id', 'neq', '00000000-0000-0000-0000-000000000000'); // Dummy filter to allow update all if needed by policy
+          
+          if (error) {
+             // Fallback attempt if filter was rejected by certain RLS
+             const { error: error2 } = await supabase.from('products').update({ type: 'service' }).not('id', 'eq', 'null');
+             if (error2) throw error2;
+          }
+          
+          // Refresh local state
+          const { data: products } = await supabase.from('products').select('*');
+          if (products) {
+            set({ products: products.map(snakeToCamel) });
+          }
+        } catch (err) {
+          console.error('Migration failed:', err);
           throw err;
         }
       },

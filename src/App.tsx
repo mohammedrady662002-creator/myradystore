@@ -42,7 +42,8 @@ export default function App() {
     addProduct,
     addSale,
     addTransaction,
-    importBulkData
+    importBulkData,
+    migrateExistingProductsToService
   } = useStore();
   const [activeTab, setActiveTab] = useState(currentUser?.role === 'owner' ? 'dashboard' : 'sales');
   const [showSettings, setShowSettings] = useState(false);
@@ -304,8 +305,24 @@ export default function App() {
                   </div>
 
                   <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-3xl border border-dotted border-slate-200 dark:border-white/10">
-                    <h4 className="font-bold text-sm mb-4 flex items-center gap-2"><FileJson size={18} className="text-primary" /> النسخة الاحتياطية</h4>
+                    <h4 className="font-bold text-sm mb-4 flex items-center gap-2"><FileJson size={18} className="text-primary" /> النسخة الاحتياطية والبيانات</h4>
                     <div className="flex flex-col gap-3">
+                      <button 
+                        onClick={async () => {
+                           if(confirm('هل تريد فعلاً تحويل كافة المنتجات المضافة مسبقاً إلى نظام "بدون مخزون"؟')) {
+                              try {
+                                await migrateExistingProductsToService();
+                                alert('تم التحديث بنجاح!');
+                              } catch(e) {
+                                alert('فشل التحديث');
+                              }
+                           }
+                        }}
+                        className="w-full flex items-center justify-between p-4 bg-indigo-500/5 dark:bg-indigo-500/10 border border-indigo-500/20 rounded-2xl hover:bg-indigo-500/20 transition-all font-black text-xs text-indigo-400 group"
+                      >
+                        <span>تحديث كافة المنتجات إلى "بدون مخزون" (كويري)</span>
+                        <RotateCcw size={18} className="group-hover:rotate-180 transition-transform duration-500" />
+                      </button>
                       <button 
                         onClick={exportBackup} 
                         className="w-full flex items-center justify-between p-4 bg-white dark:bg-slate-800 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-all font-bold text-xs shadow-sm"

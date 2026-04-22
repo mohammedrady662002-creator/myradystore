@@ -988,11 +988,13 @@ function ProductModal({
                   type="button"
                   onClick={() => setData(prev => ({ ...prev, type: 'product' }))}
                   className={cn(
-                    "flex-1 flex flex-col items-center gap-3 p-6 rounded-3xl border-2 transition-all",
-                    data.type === 'product' ? "border-primary bg-primary/5 text-primary" : "border-slate-100 dark:border-white/5 text-slate-400"
+                    "flex-1 flex flex-col items-center gap-3 p-6 rounded-3xl border-[3px] transition-all",
+                    data.type === 'product' 
+                      ? "border-white dark:border-white bg-primary/10 text-primary shadow-2xl shadow-primary/20 scale-[1.02]" 
+                      : "border-slate-100 dark:border-white/5 text-slate-400 opacity-40 hover:opacity-100"
                   )}
                 >
-                  <Box size={32} />
+                  <Box size={32} className={cn(data.type === 'product' ? "text-primary" : "text-slate-400")} />
                   <span className="font-black text-sm">منتج (بكمية ومخزون)</span>
                 </button>
                 <button
@@ -1006,14 +1008,22 @@ function ProductModal({
                     }))
                   }}
                   className={cn(
-                    "flex-1 flex flex-col items-center gap-3 p-6 rounded-3xl border-2 transition-all",
-                    data.type === 'service' ? "border-emerald-500 bg-emerald-500/5 text-emerald-600" : "border-slate-100 dark:border-white/5 text-slate-400"
+                    "flex-1 flex flex-col items-center gap-3 p-6 rounded-3xl border-[3px] transition-all",
+                    data.type === 'service' 
+                      ? "border-white dark:border-white bg-indigo-500/10 text-indigo-400 shadow-2xl shadow-indigo-500/20 scale-[1.02]" 
+                      : "border-slate-100 dark:border-white/5 text-slate-400 opacity-40 hover:opacity-100"
                   )}
                 >
-                  <Wrench size={32} />
+                  <Wrench size={32} className={cn(data.type === 'service' ? "text-indigo-400" : "text-slate-400")} />
                   <span className="font-black text-sm">خدمة (بدون مخزون)</span>
                 </button>
               </div>
+              {['accessories', 'spare_parts'].includes(data.category || '') && (
+                <p className="text-[9px] font-bold text-slate-400 mr-2">* يتم تفعيل نظام المخزون تلقائياً لهذا القسم</p>
+              )}
+              {['maintenance', 'software', 'hardware', 'finance'].includes(data.category || '') && (
+                <p className="text-[9px] font-bold text-indigo-400 mr-2">* يتم تفعيل نظام "بدون مخزون" تلقائياً لهذا القسم</p>
+              )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1048,7 +1058,16 @@ function ProductModal({
                 <label className="text-[10px] font-black uppercase text-slate-400 px-1">القسم المستهدف</label>
                 <select 
                   value={data.category}
-                  onChange={(e) => setData(prev => ({ ...prev, category: e.target.value as Category }))}
+                  onChange={(e) => {
+                    const cat = e.target.value as Category;
+                    const isTangible = ['accessories', 'spare_parts'].includes(cat);
+                    const isServiceOnly = ['maintenance', 'software', 'hardware', 'finance'].includes(cat);
+                    setData(prev => ({ 
+                      ...prev, 
+                      category: cat,
+                      type: isTangible ? 'product' : (isServiceOnly ? 'service' : prev.type)
+                    }));
+                  }}
                   className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-white/5 rounded-2xl p-4 font-bold outline-none focus:ring-4 focus:ring-primary/10 transition-all appearance-none cursor-pointer"
                 >
                   {CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}

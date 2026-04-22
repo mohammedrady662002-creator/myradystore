@@ -232,20 +232,22 @@ export default function Sales() {
           </div>
 
           <div className="relative group">
-            <div className="absolute inset-y-0 right-5 flex items-center text-slate-400 group-focus-within:text-primary transition-colors">
-              <Search size={24} />
+            <div className="absolute inset-y-0 right-3 sm:right-5 flex items-center text-slate-400 group-focus-within:text-primary transition-colors">
+              <Search className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <input 
               type="text" 
               placeholder="ابحث بالاسم أو الكود (مثال: شاحن، آيفون...)" 
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-white/5 rounded-2xl py-6 pr-16 pl-16 font-black outline-none focus:ring-4 focus:ring-primary/10 transition-all text-xl"
+              className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-white/5 rounded-2xl py-4 sm:py-6 pr-12 sm:pr-16 pl-12 sm:pl-16 font-black outline-none focus:ring-4 focus:ring-primary/10 transition-all text-base sm:text-xl"
               autoFocus
             />
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+            <div className="absolute left-2.5 sm:left-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
                <span className="hidden sm:block text-[10px] font-black uppercase text-slate-300 bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-lg">F2 للبحث</span>
-               <div className="p-2.5 bg-primary/10 text-primary rounded-xl"><Scan size={20} /></div>
+               <div className="p-2 sm:p-2.5 bg-primary/10 text-primary rounded-xl">
+                 <Scan className="w-4 h-4 sm:w-5 sm:h-5" />
+               </div>
             </div>
 
             {/* Professional Dropdown Results */}
