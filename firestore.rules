@@ -1,0 +1,113 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Validation Blueprints
+    function isValidProduct(data) {
+      return data.keys().hasAll(['id', 'name', 'code', 'category', 'type', 'wholesalePrice', 'sellingPrice', 'quantity', 'createdAt']) &&
+             data.id is string && isValidId(data.id) &&
+             data.name is string && data.name.size() <= 200 &&
+             data.type in ['product', 'service'] &&
+             data.category is string &&
+             data.wholesalePrice is number &&
+             data.sellingPrice is number &&
+             data.quantity is number &&
+             data.createdAt is string &&
+             (data.get('backroomQuantity', 0) is number) &&
+             (data.get('expirationDate', '') is string);
+    }
+
+    function isValidSale(data) {
+      return data.keys().hasAll(['id', 'productId', 'productName', 'category', 'type', 'quantity', 'unitPrice', 'totalBasePrice', 'wholesaleTotalCost', 'discount', 'finalPrice', 'profit', 'method', 'date']) &&
+             data.id is string && isValidId(data.id) &&
+             data.productId is string &&
+             data.type in ['product', 'service'] &&
+             data.quantity is number &&
+             data.finalPrice is number &&
+             data.date is string;
+    }
+
+    function isValidTransaction(data) {
+      return data.keys().hasAll(['id', 'type', 'amount', 'date']) &&
+             data.id is string && isValidId(data.id) &&
+             data.type is string &&
+             data.amount is number &&
+             data.date is string &&
+             (data.get('customerId', '') is string) &&
+             (data.get('proofImageUrl', '') is string);
+    }
+
+    function isValidCustomer(data) {
+      return data.keys().hasAll(['id', 'name', 'totalDebt', 'createdAt']) &&
+             data.id is string && isValidId(data.id) &&
+             data.name is string && data.name.size() <= 200 &&
+             data.totalDebt is number &&
+             data.createdAt is string &&
+             (data.get('imageUrl', '') is string);
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Connection test
+    match /_connection_test/{docId} {
+      allow read: if isSignedIn();
+    }
+
+    // Products collection
+    match /products/{productId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(productId) && isValidProduct(incoming());
+      allow update: if isSignedIn() && isValidProduct(incoming());
+      allow delete: if isSignedIn();
+    }
+
+    // Sales collection
+    match /sales/{saleId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(saleId) && isValidSale(incoming());
+      allow update: if isSignedIn() && isValidSale(incoming());
+      allow delete: if isSignedIn();
+    }
+
+    // Transactions collection
+    match /transactions/{txId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(txId) && isValidTransaction(incoming());
+      allow update: if isSignedIn() && isValidTransaction(incoming());
+      allow delete: if isSignedIn();
+    }
+
+    // Settings collection
+    match /settings/{settingId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
+    }
+
+    // Customers collection
+    match /customers/{customerId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(customerId) && isValidCustomer(incoming());
+      allow update: if isSignedIn() && isValidCustomer(incoming());
+      allow delete: if isSignedIn();
+    }
+  }
+}

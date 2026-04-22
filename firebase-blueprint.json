@@ -1,0 +1,114 @@
+{
+  "entities": {
+    "Product": {
+      "title": "Product",
+      "description": "Mobile store product/inventory item",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "code": { "type": "string" },
+        "wholesalePrice": { "type": "number" },
+        "sellingPrice": { "type": "number" },
+        "quantity": { "type": "number" },
+        "backroomQuantity": { "type": "number" },
+        "notes": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "category": { "type": "string" },
+        "type": { "type": "string", "enum": ["product", "service"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "expirationDate": { "type": "string", "format": "date" }
+      },
+      "required": ["id", "name", "code", "wholesalePrice", "sellingPrice", "quantity", "category"]
+    },
+    "Sale": {
+      "title": "Sale",
+      "description": "Sale transaction record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "productId": { "type": "string" },
+        "productName": { "type": "string" },
+        "category": { "type": "string" },
+        "type": { "type": "string", "enum": ["product", "service"] },
+        "quantity": { "type": "number" },
+        "unitPrice": { "type": "number" },
+        "totalBasePrice": { "type": "number" },
+        "wholesaleTotalCost": { "type": "number" },
+        "discount": { "type": "number" },
+        "finalPrice": { "type": "number" },
+        "profit": { "type": "number" },
+        "method": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "notes": { "type": "string" },
+        "customerId": { "type": "string" },
+        "customerName": { "type": "string" },
+        "customerPhone": { "type": "string" }
+      },
+      "required": ["id", "productId", "quantity", "finalPrice", "date"]
+    },
+    "BankTransaction": {
+      "title": "Bank Transaction",
+      "description": "Financial service or balance transfer",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": "string" },
+        "sourceAccount": { "type": "string" },
+        "destinationAccount": { "type": "string" },
+        "amount": { "type": "number" },
+        "commission": { "type": "number" },
+        "notes": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "customerId": { "type": "string" },
+        "proofImageUrl": { "type": "string" }
+      },
+      "required": ["id", "type", "amount", "date"]
+    },
+    "Settings": {
+      "title": "Settings",
+      "description": "Store-wide settings like PINs",
+      "type": "object",
+      "properties": {
+        "ownerPin": { "type": "string" },
+        "employeePin": { "type": "string" }
+      }
+    },
+    "Customer": {
+      "title": "Customer",
+      "description": "Customer with debt records",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "totalDebt": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "totalDebt", "createdAt"]
+    }
+  },
+  "firestore": {
+    "products": {
+      "schema": "Product",
+      "description": "Inventory products collection"
+    },
+    "sales": {
+      "schema": "Sale",
+      "description": "Sales history collection"
+    },
+    "transactions": {
+      "schema": "BankTransaction",
+      "description": "Financial transactions collection"
+    },
+    "settings": {
+      "schema": "Settings",
+      "description": "Global app settings collection"
+    },
+    "customers": {
+      "schema": "Customer",
+      "description": "Indebted customers collection"
+    }
+  }
+}

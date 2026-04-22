@@ -1,0 +1,129 @@
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Tajawal", ui-sans-serif, system-ui, sans-serif;
+  --color-primary: hsl(262 83% 58%);
+  
+  /* Overriding common colors to HSL to prevent oklch parsing issues in html2canvas */
+  --color-slate-50: hsl(210 40% 98%);
+  --color-slate-100: hsl(210 40% 96.1%);
+  --color-slate-200: hsl(210 40% 92.2%);
+  --color-slate-300: hsl(210 40% 88.2%);
+  --color-slate-400: hsl(215 16.3% 46.9%);
+  --color-slate-500: hsl(215 16.3% 46.9%);
+  --color-slate-600: hsl(215 19.3% 34.5%);
+  --color-slate-700: hsl(215 25% 26.7%);
+  --color-slate-800: hsl(217 33% 17.5%);
+  --color-slate-900: hsl(222 47% 11.2%);
+  --color-slate-950: hsl(222 47% 5.9%);
+
+  --color-rose-500: hsl(350 89% 60%);
+  --color-rose-600: hsl(350 89% 50%);
+  --color-rose-700: hsl(350 89% 36%);
+
+  --color-emerald-500: hsl(142 71% 45%);
+  --color-emerald-600: hsl(142 71% 35%);
+
+  --color-indigo-500: hsl(239 84% 67%);
+  --color-indigo-600: hsl(239 84% 57%);
+
+  --radius-xs: 0.5rem;
+  --radius-sm: 0.75rem; 
+  --radius-md: 1rem;
+  --radius-lg: 1.5rem;
+  --radius-xl: 2.5rem;
+
+  @keyframes pulse-soft {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 224 71.4% 4.1%;
+    --card: 0 0% 100%;
+    --card-foreground: 224 71.4% 4.1%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 71.4% 4.1%;
+    --primary-foreground: 210 20% 98%;
+    --secondary: 220 14.3% 95.9%;
+    --secondary-foreground: 220.9 39.3% 11%;
+    --muted: 220 14.3% 95.9%;
+    --muted-foreground: 220 8.9% 46.1%;
+    --accent: 220 14.3% 95.9%;
+    --accent-foreground: 220.9 39.3% 11%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 20% 98%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 262 83% 58%;
+  }
+
+  .dark {
+    --background: 224 71.4% 4.1%;
+    --foreground: 210 20% 98%;
+    --card: 224 71.4% 4.1%;
+    --card-foreground: 210 20% 98%;
+    --popover: 224 71.4% 4.1%;
+    --popover-foreground: 210 20% 98%;
+    --primary-foreground: 210 20% 98%;
+    --secondary: 215 27.9% 16.9%;
+    --secondary-foreground: 210 20% 98%;
+    --muted: 215 27.9% 16.9%;
+    --muted-foreground: 217.9 10.6% 64.9%;
+    --accent: 215 27.9% 16.9%;
+    --accent-foreground: 210 20% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 20% 98%;
+    --border: 215 27.9% 16.9%;
+    --input: 215 27.9% 16.9%;
+    --ring: 262 83% 58%;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/10 backdrop-blur-md border border-white/20;
+  }
+  
+  .dark .glass {
+    @apply bg-black/20 backdrop-blur-md border border-white/10;
+  }
+  
+  .neumorphic {
+    @apply shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-slate-200/50;
+  }
+  
+  .dark .neumorphic {
+    @apply shadow-[0_4px_30px_rgba(0,0,0,0.4)] border border-white/5;
+  }
+}
+
+body {
+  @apply bg-slate-50 text-slate-900 transition-colors duration-300;
+  font-family: var(--font-sans);
+}
+
+.dark body {
+  @apply bg-[#0c0c0e] text-slate-100;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-slate-300 rounded-full dark:bg-slate-700;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  @apply bg-slate-400 dark:bg-slate-600;
+}
