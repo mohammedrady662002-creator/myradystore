@@ -55,26 +55,45 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 export default function Reports() {
-  const { sales, transactions, isDarkMode, currentUser } = useStore();
+  const { sales, transactions, customers, isDarkMode, currentUser } = useStore();
   const reportRef = useRef<HTMLDivElement>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const isOwner = currentUser?.role === 'owner';
 
+  // Filters
+  const [paymentFilter, setPaymentFilter] = useState<string>('all');
+  const [customerFilter, setCustomerFilter] = useState<string>('all');
+
+  const filteredSales = useMemo(() => {
+    return sales.filter(s => {
+      const matchPayment = paymentFilter === 'all' || s.method === paymentFilter;
+      const matchCustomer = customerFilter === 'all' || s.customerId === customerFilter;
+      return matchPayment && matchCustomer;
+    });
+  }, [sales, paymentFilter, customerFilter]);
+
   const reportData = useMemo(() => {
-    const totalSales = sales.reduce((acc, s) => acc + s.finalPrice, 0);
-    const totalCost = sales.reduce((acc, s) => acc + s.wholesaleTotalCost, 0);
-    const salesProfit = sales.reduce((acc, s) => acc + s.profit, 0);
+    const totalSales = filteredSales.reduce((acc, s) => acc + s.finalPrice, 0);
+    const totalCost = filteredSales.reduce((acc, s) => acc + s.wholesaleTotalCost, 0);
+    const salesProfit = filteredSales.reduce((acc, s) => acc + s.profit, 0);
     const totalCommissions = transactions.reduce((acc, t) => acc + t.commission, 0);
     const netProfit = salesProfit + totalCommissions;
     const profitMargin = totalSales > 0 ? (netProfit / totalSales) * 100 : 0;
+
+    // Sales by Payment Method
+    const methodCounts: Record<string, number> = {};
+    filteredSales.forEach(s => {
+      methodCounts[s.method] = (methodCounts[s.method] || 0) + s.finalPrice;
+    });
+    const methodChartData = Object.entries(methodCounts).map(([name, value]) => ({ name, value }));
 
     // Breakdown by Type
     const typeBreakdown = {
       product: { sales: 0, profit: 0, count: 0 },
       service: { sales: 0, profit: 0, count: 0 }
     };
-    sales.forEach(s => {
+    filteredSales.forEach(s => {
       const type = s.type || 'product';
       if (typeBreakdown[type]) {
         typeBreakdown[type].sales += s.finalPrice;
@@ -87,7 +106,7 @@ export default function Reports() {
     const categories: Record<string, { name: string, profit: number, sales: number, count: number }> = {};
     
     // Process Sales
-    sales.forEach(s => {
+    filteredSales.forEach(s => {
       if (!categories[s.category]) {
         categories[s.category] = { name: CATEGORY_LABELS[s.category] || s.category, profit: 0, sales: 0, count: 0 };
       }
@@ -97,7 +116,7 @@ export default function Reports() {
     });
 
     // Add Finance category for commissions
-    if (totalCommissions > 0) {
+    if (totalCommissions > 0 && customerFilter === 'all') { // Only show commissions if no customer filter (transactions don't always have one)
       if (!categories['finance']) {
         categories['finance'] = { name: CATEGORY_LABELS['finance'], profit: 0, sales: 0, count: 0 };
       }
@@ -116,14 +135,15 @@ export default function Reports() {
       salesProfit,
       totalCommissions,
       netProfit,
-      salesCount: sales.length,
+      salesCount: filteredSales.length,
       txCount: transactions.length,
       profitMargin,
       chartData,
+      methodChartData,
       categories,
       typeBreakdown
     };
-  }, [sales, transactions]);
+  }, [filteredSales, transactions, customerFilter]);
 
   const handleExport = async (type: 'png' | 'pdf') => {
     if (!reportRef.current) return;
@@ -244,11 +264,53 @@ export default function Reports() {
         {/* Print Only Header */}
         <div className="hidden print:flex flex-col items-center mb-10 pb-6 border-b-2 border-slate-900">
           <h1 className="text-4xl font-black mb-2">راضي ستور</h1>
-          <p className="text-lg font-bold">تقرير النشاط المالي وكشف الأرباح الشامل</p>
+          <p className="text-lg font-bold text-luxury">تقرير النشاط المالي وكشف الأرباح الشامل</p>
           <p className="text-sm opacity-60 mt-2">{formatArabicDate(new Date().toISOString())}</p>
         </div>
 
-        {/* Summary Stats Grid */}
+        {/* Filters Bar */}
+      <div className="flex flex-col md:flex-row gap-4 print:hidden">
+        <div className="flex-1 relative">
+          <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-slate-400">
+            <Wallet size={18} />
+          </div>
+          <select 
+            value={paymentFilter}
+            onChange={(e) => setPaymentFilter(e.target.value)}
+            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 rounded-2xl py-4 pr-12 pl-4 font-bold text-xs outline-none focus:ring-4 focus:ring-primary/10 transition-all appearance-none cursor-pointer"
+          >
+            <option value="all">كل طرق الدفع</option>
+            <option value="cash">نقدي (Cash)</option>
+            <option value="vodafone">فودافون كاش</option>
+            <option value="bank">تحويل بنكي</option>
+            <option value="debt">مديونية</option>
+          </select>
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+            <ChevronDown size={18} />
+          </div>
+        </div>
+
+        <div className="flex-1 relative">
+          <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-slate-400">
+            <FileText size={18} />
+          </div>
+          <select 
+            value={customerFilter}
+            onChange={(e) => setCustomerFilter(e.target.value)}
+            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 rounded-2xl py-4 pr-12 pl-4 font-bold text-xs outline-none focus:ring-4 focus:ring-primary/10 transition-all appearance-none cursor-pointer"
+          >
+            <option value="all">كل العملاء</option>
+            {customers.map(c => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+            <ChevronDown size={18} />
+          </div>
+        </div>
+      </div>
+
+      {/* Summary Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-10">
           {[
             { label: 'إجمالي المبيعات', value: reportData.totalSales, highlight: false },
@@ -322,43 +384,63 @@ export default function Reports() {
         </div>
 
         {/* Analytics Visualization Section */}
-        <div className="bg-white dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-100 dark:border-white/5 mb-10 shadow-sm">
-          <div className="flex justify-between items-start mb-8">
-            <div>
-              <h3 className="text-xl font-black">توزيع الأرباح حسب القسم</h3>
-              <p className="text-xs text-slate-400 font-bold mt-1 uppercase tracking-wider">مقارنة أداء الأقسام المختلفة من حيث الربحية</p>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+          <div className="bg-white dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-100 dark:border-white/5 shadow-sm">
+            <div className="flex justify-between items-start mb-8">
+              <div>
+                <h3 className="text-xl font-black text-luxury">توزيع الأرباح حسب القسم</h3>
+                <p className="text-xs text-slate-400 font-bold mt-1 uppercase tracking-wider">مقارنة أداء الأقسام المختلفة من حيث الربحية</p>
+              </div>
+              <div className="bg-primary/10 text-primary p-3 rounded-2xl animate-[float_4s_infinite_ease-in-out]">
+                <BarChart3 size={24} />
+              </div>
             </div>
-            <div className="bg-primary/10 text-primary p-3 rounded-2xl">
-              <BarChart3 size={24} />
+
+            <div className="h-[350px] w-full min-h-[350px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={reportData.chartData} layout="vertical" margin={{ top: 20, right: 30, left: 10, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="rgba(255,255,255,0.05)" />
+                  <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#64748b' }} />
+                  <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 700, fill: '#64748b' }} width={100} orientation="right" />
+                  <Tooltip 
+                    cursor={{ fill: 'rgba(255,255,255,0.02)' }}
+                    contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '16px', color: '#fff', textAlign: 'right' }}
+                  />
+                  <Bar dataKey="profit" radius={[4, 4, 4, 4]} barSize={20}>
+                    {reportData.chartData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={CATEGORY_COLORS[entry.key] || '#6366f1'} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </div>
 
-          <div className="h-[350px] w-full min-h-[350px]">
-            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-              <BarChart data={reportData.chartData} layout="vertical" margin={{ top: 20, right: 30, left: 10, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="rgba(255,255,255,0.05)" />
-                <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#64748b' }} tickFormatter={(val) => val.toLocaleString('en-US')} />
-                <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 700, fill: '#64748b' }} width={100} orientation="right" />
-                <Tooltip 
-                  cursor={{ fill: 'rgba(255,255,255,0.02)' }}
-                  formatter={(val: number) => [val.toLocaleString('en-US'), 'صافي الربح']}
-                  contentStyle={{ 
-                    backgroundColor: '#1e293b', 
-                    border: 'none', 
-                    borderRadius: '16px',
-                    color: '#fff',
-                    textAlign: 'right'
-                  }}
-                  itemStyle={{ fontSize: '12px', fontWeight: 700 }}
-                  labelStyle={{ fontSize: '10px', color: '#94a3b8', marginBottom: '4px' }}
-                />
-                <Bar dataKey="profit" radius={[4, 4, 4, 4]} barSize={24} name="صافي الربح">
-                  {reportData.chartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={CATEGORY_COLORS[entry.key] || '#6366f1'} fillOpacity={0.8} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="bg-white dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-100 dark:border-white/5 shadow-sm">
+            <div className="flex justify-between items-start mb-8">
+              <div>
+                <h3 className="text-xl font-black text-luxury">المبيعات حسب طريقة الدفع</h3>
+                <p className="text-xs text-slate-400 font-bold mt-1 uppercase tracking-wider">توزيع السيولة المالية في المبيعات</p>
+              </div>
+              <div className="bg-emerald-500/10 text-emerald-500 p-3 rounded-2xl animate-[float_4.5s_infinite_ease-in-out]">
+                <PieChartIcon size={24} />
+              </div>
+            </div>
+
+            <div className="h-[350px] w-full min-h-[350px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={reportData.methodChartData} layout="vertical" margin={{ top: 20, right: 30, left: 10, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="rgba(255,255,255,0.05)" />
+                  <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#64748b' }} />
+                  <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 700, fill: '#64748b' }} width={100} orientation="right" />
+                  <Tooltip 
+                    cursor={{ fill: 'rgba(255,255,255,0.02)' }}
+                    contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '16px', color: '#fff', textAlign: 'right' }}
+                  />
+                  <Bar dataKey="value" radius={[4, 4, 4, 4]} barSize={20} fill="#10b981" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         </div>
 

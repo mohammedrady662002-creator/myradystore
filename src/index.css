@@ -1,22 +1,24 @@
-@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Tajawal", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  
   --color-primary: hsl(262 83% 58%);
   
   /* Overriding common colors to HSL to prevent oklch parsing issues in html2canvas */
-  --color-slate-50: hsl(210 40% 98%);
-  --color-slate-100: hsl(210 40% 96.1%);
-  --color-slate-200: hsl(210 40% 92.2%);
+  --color-slate-50: hsl(220 20% 98%);
+  --color-slate-100: hsl(220 15% 94%);
+  --color-slate-200: hsl(220 15% 90%);
   --color-slate-300: hsl(210 40% 88.2%);
   --color-slate-400: hsl(215 16.3% 46.9%);
-  --color-slate-500: hsl(215 16.3% 46.9%);
+  --color-slate-500: hsl(220 16.3% 46.9%);
   --color-slate-600: hsl(215 19.3% 34.5%);
   --color-slate-700: hsl(215 25% 26.7%);
-  --color-slate-800: hsl(217 33% 17.5%);
-  --color-slate-900: hsl(222 47% 11.2%);
-  --color-slate-950: hsl(222 47% 5.9%);
+  --color-slate-800: hsl(222 25% 15%);
+  --color-slate-900: hsl(222 35% 10%);
+  --color-slate-950: hsl(222 45% 5%);
 
   --color-rose-500: hsl(350 89% 60%);
   --color-rose-600: hsl(350 89% 50%);
@@ -28,16 +30,46 @@
   --color-indigo-500: hsl(239 84% 67%);
   --color-indigo-600: hsl(239 84% 57%);
 
-  --radius-xs: 0.5rem;
-  --radius-sm: 0.75rem; 
-  --radius-md: 1rem;
-  --radius-lg: 1.5rem;
-  --radius-xl: 2.5rem;
+  --radius-xs: 0.6rem;
+  --radius-sm: 0.8rem; 
+  --radius-md: 1.2rem;
+  --radius-lg: 2rem;
+  --radius-xl: 3rem;
 
   @keyframes pulse-soft {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.7; }
   }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(155, 155, 155, 0.5) transparent;
+}
+
+body {
+  overflow-x: hidden;
+  overscroll-behavior-y: contain;
+  -webkit-font-smoothing: antialiased;
+  touch-action: pan-x pan-y;
+}
+
+button, a, input, select {
+  touch-action: manipulation;
+}
+
+.custom-scrollbar {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  backface-visibility: hidden;
+  perspective: 1000;
+  transform: translate3d(0,0,0);
 }
 
 @layer base {

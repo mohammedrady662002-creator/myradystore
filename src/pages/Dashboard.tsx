@@ -64,10 +64,12 @@ export default function Dashboard() {
     const totalCash = bals.cash + bals.vodafone + bals.bank;
     const totalDebt = bals.debt;
     const totalInventoryCapital = products.reduce((acc, p) => acc + (p.wholesalePrice * (p.type === 'service' ? 0 : (p.quantity || 0) + (p.backroomQuantity || 0))), 0);
+    const potentialProfit = products.reduce((acc, p) => acc + ((p.sellingPrice - p.wholesalePrice) * (p.type === 'service' ? 0 : (p.quantity || 0) + (p.backroomQuantity || 0))), 0);
 
     return {
       totalSales,
-      totalProfit,
+      totalProfit, // Realized
+      potentialProfit, // From stock
       totalCash,
       totalDebt,
       totalInventoryCapital,
@@ -119,7 +121,7 @@ export default function Dashboard() {
       {/* Welcome Header - Arabic Style */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-slate-100 dark:border-white/5 pb-8">
         <div>
-          <h2 className="text-4xl font-black tracking-tight mb-2">مركز القيادة والتحكم</h2>
+          <h2 className="text-4xl font-black text-luxury tracking-tight mb-2 bg-gradient-to-l from-slate-900 to-slate-500 dark:from-white dark:to-slate-400 bg-clip-text text-transparent">مركز القيادة والتحكم</h2>
           <div className="flex items-center gap-3">
             <div className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
             <p className="text-slate-500 dark:text-slate-400 font-bold text-[10px] uppercase tracking-widest">
@@ -128,56 +130,81 @@ export default function Dashboard() {
           </div>
         </div>
         <div className="flex gap-3">
-          <div className="bg-slate-900 border border-white/10 px-6 py-3 rounded-2xl flex items-center gap-3 text-white shadow-2xl">
+          <div className="glass px-6 py-3 rounded-2xl flex items-center gap-3 shadow-2xl">
             <Clock size={18} className="text-primary" />
-            <span className="font-black text-sm tracking-tight">{new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' })}</span>
+            <span className="font-black text-sm tracking-tight text-luxury">{new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' })}</span>
           </div>
         </div>
       </div>
 
       {/* Stats Grid - Hybrid Layout */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-        <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div className="bg-slate-900 p-8 rounded-[2.5rem] text-white relative overflow-hidden group shadow-2xl">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 p-1.5 rounded-[3rem] bg-slate-200/20 dark:bg-white/5 border border-white/10 luxury-shadow backdrop-blur-xl relative group/grid">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover/grid:opacity-100 transition-opacity duration-1000 rounded-[3rem] pointer-events-none" />
+        <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6 relative z-10">
+          <div className="bg-slate-900 p-8 rounded-[2.5rem] text-white relative overflow-hidden group shadow-2xl border border-white/5">
             <div className="relative z-10">
               <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-4 opacity-50">إجمالي السيولة النقدية</p>
-              <h3 className="text-4xl font-black tracking-tighter mb-2">{formatCurrency(statsData.totalCash)}</h3>
+              <h3 className="text-4xl font-black text-luxury tracking-tighter mb-2">{formatCurrency(statsData.totalCash)}</h3>
               <div className="flex items-center gap-2 text-emerald-400 text-[10px] font-black uppercase">
-                <TrendingUp size={14} />
-                <span>+12.5% مقارنة بالأسبوع الماضي</span>
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span>سيولة جارية آمنة</span>
               </div>
             </div>
             <Wallet className="absolute -bottom-6 -right-6 w-32 h-32 opacity-10 group-hover:scale-110 transition-transform duration-700" />
-            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full -mr-16 -mt-16 blur-3xl opacity-50" />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full -mr-16 -mt-16 blur-3xl opacity-50" />
           </div>
           
-          <div className="bg-primary p-8 rounded-[2.5rem] text-white relative overflow-hidden group shadow-xl">
+          <div className="bg-primary p-8 rounded-[2.5rem] text-white relative overflow-hidden group shadow-xl border border-white/10">
             <div className="relative z-10">
               <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-4 opacity-70">المبيعات الإجمالية</p>
-              <h3 className="text-4xl font-black tracking-tighter mb-2">{formatCurrency(statsData.totalSales)}</h3>
-              <p className="text-[10px] font-bold opacity-60 uppercase">العمليات الناجحة المسجلة</p>
+              <h3 className="text-4xl font-black text-luxury tracking-tighter mb-2">{formatCurrency(statsData.totalSales)}</h3>
+              <div className="flex items-center gap-2">
+                 <p className="text-[10px] font-bold opacity-60 uppercase">إيرادات الفواتير المكتملة</p>
+                 <div className="px-2 py-0.5 bg-white/20 rounded-md text-[8px] font-black">LIVE</div>
+              </div>
             </div>
             <ShoppingCart className="absolute -bottom-6 -right-6 w-32 h-32 opacity-10 group-hover:rotate-12 transition-transform duration-700" />
           </div>
         </div>
 
-        <div className="xl:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/5 p-8 rounded-[2.5rem] relative group shadow-sm">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-4 text-slate-400">إجمالي الديون الخارجية</p>
-            <h3 className="text-3xl font-black tracking-tighter mb-2 text-rose-500">{formatCurrency(statsData.totalDebt)}</h3>
-            <div className="mt-4 flex h-1 w-full bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden">
-               <div className="h-full bg-rose-500 w-[45%]" />
+        <div className="xl:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6 relative z-10">
+          <div className="glass p-8 rounded-[2.5rem] relative group luxury-shadow border border-white/5 overflow-hidden">
+            <div className="absolute top-0 left-0 w-1 h-full bg-rose-500 opacity-20" />
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-4 text-slate-400">إجمالي الديون (الشكك)</p>
+            <h3 className="text-3xl font-black text-luxury tracking-tighter mb-2 text-rose-500">{formatCurrency(statsData.totalDebt)}</h3>
+            <div className="mt-4 flex items-center justify-between">
+               <div className="flex h-1 w-24 bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden">
+                  <div className="h-full bg-rose-500 w-[45%]" />
+               </div>
+               <span className="text-[9px] font-black text-rose-400 uppercase">مستحقات معلقة</span>
             </div>
           </div>
 
-          <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/5 p-8 rounded-[2.5rem] relative group shadow-sm">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-4 text-slate-400">صافي الربح المتوقع</p>
-            <h3 className="text-3xl font-black tracking-tighter mb-2 text-emerald-500">
+          <div className="glass p-8 rounded-[2.5rem] relative group luxury-shadow border border-white/5 bg-gradient-to-br from-emerald-500/5 to-transparent overflow-hidden">
+            <div className="absolute top-0 right-0 w-1 h-full bg-emerald-500 opacity-20" />
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">صافي الأرباح المحققة</p>
+                <p className="text-[8px] font-bold uppercase text-emerald-500 tracking-wider">السيولة الربحية الصافية</p>
+              </div>
+              {isOwner && (
+                <div className="text-left bg-emerald-500/10 px-2 py-1 rounded-lg border border-emerald-500/20">
+                  <p className="text-[7px] font-black text-slate-500 uppercase">الربح المتوقع بالمخزن</p>
+                  <p className="text-[9px] font-black text-emerald-500 leading-none">+{formatCurrency(statsData.potentialProfit)}</p>
+                </div>
+              )}
+            </div>
+            <h3 className="text-3xl font-black text-luxury tracking-tighter mb-2 text-emerald-500">
                {isOwner ? formatCurrency(statsData.totalProfit) : '••••••'}
             </h3>
-            <div className="mt-4 flex h-1 w-full bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden">
-               <div className="h-full bg-emerald-500 w-[65%]" />
-            </div>
+            {isOwner && statsData.totalSales > 0 && (
+              <div className="flex items-center gap-2 mt-4">
+                 <div className="px-2 py-0.5 bg-emerald-500 text-white text-[8px] font-black rounded-md">
+                    MARKUP: {Math.round((statsData.totalProfit / (statsData.totalSales - statsData.totalProfit)) * 100)}%
+                 </div>
+                 <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">متوسط ربحية المتجر</span>
+              </div>
+            )}
           </div>
         </div>
       </div>

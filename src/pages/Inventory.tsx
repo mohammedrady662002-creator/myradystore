@@ -414,18 +414,18 @@ export default function Inventory() {
       {/* Content Area (Grid or List) */}
       {filteredProducts.length > 0 ? (
         viewType === 'grid' ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
             <AnimatePresence mode="popLayout">
               {filteredProducts.map((p, i) => (
                 <motion.div
                   key={p.id}
                   layout
-                  initial={{ opacity: 0, scale: 0.9 }}
+                  initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.2, delay: i * 0.05 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.2, delay: Math.min(i * 0.03, 0.3) }}
                   className={cn(
-                    "bg-white dark:bg-slate-900 p-4 rounded-3xl border transition-all group relative overflow-hidden",
+                    "bg-white dark:bg-slate-900 p-3 sm:p-4 rounded-3xl border transition-all group relative overflow-hidden",
                     selectedIds.includes(p.id) ? "border-primary shadow-xl ring-2 ring-primary/20" : "border-slate-100 dark:border-white/5 shadow-sm hover:shadow-xl"
                   )}
                 >
@@ -460,7 +460,7 @@ export default function Inventory() {
                       </div>
                       {p.sellingPrice > p.wholesalePrice && (
                         <div className="px-3 py-1 rounded-full bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest flex items-center gap-1 shadow-lg shadow-emerald-500/20">
-                          <span>%{Math.round(((p.sellingPrice - p.wholesalePrice) / p.sellingPrice) * 100)} ربح</span>
+                          <span>%{Math.round(((p.sellingPrice - p.wholesalePrice) / p.wholesalePrice) * 100)} ربح</span>
                         </div>
                       )}
                     </div>
@@ -629,7 +629,7 @@ export default function Inventory() {
                         <td className="p-5">
                            {p.sellingPrice > p.wholesalePrice ? (
                              <span className="text-[10px] font-black text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-lg">
-                               %{Math.round(((p.sellingPrice - p.wholesalePrice) / p.sellingPrice) * 100)} ربح
+                               %{Math.round(((p.sellingPrice - p.wholesalePrice) / p.wholesalePrice) * 100)} ربح
                              </span>
                            ) : <span className="text-slate-300">--</span>}
                         </td>

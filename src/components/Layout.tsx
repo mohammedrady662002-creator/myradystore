@@ -60,21 +60,22 @@ export default function Layout({ children, activeTab, setActiveTab }: {
 
   return (
     <div className="min-h-screen transition-colors duration-300">
-      <div className="flex bg-slate-50 dark:bg-[#0c0c0e] text-slate-900 dark:text-slate-100 min-h-screen font-sans transition-colors duration-300" dir="rtl">
+      <div className="flex bg-slate-50 dark:bg-[#060608] text-slate-900 dark:text-slate-100 min-h-screen font-sans transition-colors duration-300 overflow-x-hidden" dir="rtl">
         
         {/* Sidebar - Desktop */}
-        <aside className="hidden lg:flex flex-col w-72 bg-white dark:bg-slate-900/50 border-l border-slate-200 dark:border-white/5 sticky top-0 h-screen transition-all">
-          <div className="p-8 flex items-center gap-4">
-            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
-              <Smartphone className="text-white" size={24} />
+        <aside className="hidden lg:flex flex-col w-72 bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-white/5 sticky top-0 h-screen transition-all luxury-shadow z-50">
+          <div className="p-10 flex flex-col items-center text-center">
+            <div className="w-20 h-20 bg-slate-900 dark:bg-primary rounded-[2rem] flex items-center justify-center shadow-2xl mb-4 group cursor-pointer animate-[float_6s_infinite_ease-in-out]">
+              <Smartphone className="text-white group-hover:scale-110 transition-transform duration-500" size={40} />
             </div>
-            <div>
-              <h1 className="font-black text-xl tracking-tight">راضي ستور</h1>
-              <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">نظام الإدارة الذكي</span>
+            <h1 className="font-display font-black text-2xl tracking-tighter text-luxury">راضي ستور</h1>
+            <div className="flex items-center gap-2 mt-1">
+               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+               <span className="text-[9px] uppercase font-bold text-slate-400 tracking-[0.2em]">نظام راضي الذكي</span>
             </div>
           </div>
 
-          <nav className="flex-1 px-4 space-y-2 mt-4">
+          <nav className="flex-1 px-6 space-y-3 mt-4">
             {filteredNavItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
@@ -83,14 +84,20 @@ export default function Layout({ children, activeTab, setActiveTab }: {
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
                   className={cn(
-                    "flex items-center gap-4 w-full px-5 py-4 rounded-2xl font-bold text-sm transition-all group",
+                    "flex items-center gap-4 w-full px-6 py-4 rounded-2xl font-black text-xs transition-all group relative",
                     isActive 
-                      ? "bg-primary text-white shadow-xl shadow-primary/20 scale-[1.02]" 
-                      : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                      ? "bg-slate-900 dark:bg-primary text-white shadow-xl shadow-primary/20 scale-[1.05]" 
+                      : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5"
                   )}
                 >
-                  <Icon size={20} className={cn("transition-transform group-hover:scale-110", isActive ? "text-white" : "text-slate-400")} />
-                  <span>{item.label}</span>
+                  <Icon size={18} className={cn("transition-transform group-hover:scale-110", isActive ? "text-white" : "text-slate-400")} />
+                  <span className="uppercase tracking-widest">{item.label}</span>
+                  {isActive && (
+                    <motion.div 
+                      layoutId="activeTab" 
+                      className="absolute right-0 w-1 h-6 bg-white rounded-l-full"
+                    />
+                  )}
                 </button>
               );
             })}
@@ -125,39 +132,60 @@ export default function Layout({ children, activeTab, setActiveTab }: {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={() => setIsSidebarOpen(false)}
-                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] lg:hidden"
+                className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] lg:hidden"
               />
               <motion.aside 
                 initial={{ x: '100%' }}
                 animate={{ x: 0 }}
                 exit={{ x: '100%' }}
-                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                className="fixed inset-y-0 right-0 w-80 bg-white dark:bg-slate-900 z-[101] lg:hidden flex flex-col"
+                transition={{ type: 'spring', damping: 30, stiffness: 300, mass: 0.8 }}
+                className="fixed inset-y-0 right-0 w-80 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl z-[101] lg:hidden flex flex-col shadow-[-20px_0_50px_rgba(0,0,0,0.2)]"
               >
-                <div className="p-8 flex items-center justify-between">
+                <div className="p-8 flex items-center justify-between border-b border-white/10">
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white">
-                      <Smartphone size={24} />
+                    <div className="w-12 h-12 bg-slate-900 dark:bg-primary rounded-2xl flex items-center justify-center text-white shadow-xl">
+                      <Smartphone size={28} />
                     </div>
-                    <h1 className="font-black text-xl">راضي ستور</h1>
+                    <h1 className="font-display font-black text-2xl tracking-tighter text-luxury">راضي ستور</h1>
                   </div>
-                  <button onClick={() => setIsSidebarOpen(false)} className="p-2 text-slate-500"><X size={24} /></button>
+                  <button onClick={() => setIsSidebarOpen(false)} className="p-2 text-slate-500 bg-slate-100 dark:bg-white/5 rounded-xl transition-all active:scale-90"><X size={24} /></button>
                 </div>
-                <nav className="flex-1 px-4 space-y-2">
+                <nav className="flex-1 px-6 space-y-3 py-6 overflow-y-auto custom-scrollbar">
                   {filteredNavItems.map((item) => (
                     <button
                       key={item.id}
-                      onClick={() => { setActiveTab(item.id); setIsSidebarOpen(false); }}
+                      onClick={() => { 
+                        if (window.navigator.vibrate) window.navigator.vibrate(5);
+                        setActiveTab(item.id); 
+                        setIsSidebarOpen(false); 
+                      }}
                       className={cn(
-                        "flex items-center gap-4 w-full px-5 py-4 rounded-2xl font-bold text-sm transition-all",
-                        activeTab === item.id ? "bg-primary text-white" : "text-slate-500"
+                        "flex items-center gap-4 w-full px-6 py-4 rounded-2xl font-black text-sm transition-all relative group",
+                        activeTab === item.id 
+                          ? "bg-slate-900 dark:bg-primary text-white shadow-lg" 
+                          : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5"
                       )}
                     >
-                      <item.icon size={20} />
-                      <span>{item.label}</span>
+                      <item.icon size={20} className={activeTab === item.id ? "text-white" : "text-slate-400"} />
+                      <span className="uppercase tracking-widest">{item.label}</span>
+                      {activeTab === item.id && (
+                        <div className="absolute right-0 w-1 h-6 bg-white rounded-l-full" />
+                      )}
                     </button>
                   ))}
                 </nav>
+
+                <div className="p-6 border-t border-white/10 bg-slate-50 dark:bg-black/20">
+                  <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl flex items-center gap-4 shadow-sm">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-black">
+                      {currentUser?.name[0]}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-black text-xs truncate">{currentUser?.name}</p>
+                      <p className="text-[10px] font-bold text-emerald-500 uppercase">نشط الآن</p>
+                    </div>
+                  </div>
+                </div>
               </motion.aside>
             </>
           )}
@@ -255,22 +283,31 @@ export default function Layout({ children, activeTab, setActiveTab }: {
             </motion.div>
           </main>
 
-          {/* Bottom Nav - Mobile Only */}
-          <nav className="fixed bottom-0 left-0 right-0 h-20 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-t border-slate-200 dark:border-white/5 lg:hidden flex items-center justify-around px-2 z-[60]">
-            {filteredNavItems.map((item) => {
+          {/* Bottom Nav - Mobile Only - Native Feel */}
+          <nav className="fixed bottom-6 left-4 right-4 h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl lg:hidden flex items-center justify-around px-2 z-[100] rounded-3xl border border-white/20 shadow-[0_20px_50px_rgba(0,0,0,0.3)] transition-transform duration-300">
+            {filteredNavItems.slice(0, 5).map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
               return (
                 <button
                   key={item.id}
-                  onClick={() => setActiveTab(item.id)}
+                  onClick={() => {
+                    if (window.navigator.vibrate) window.navigator.vibrate(5);
+                    setActiveTab(item.id);
+                  }}
                   className={cn(
-                    "flex flex-col items-center gap-1.5 px-2 py-2 rounded-xl transition-all",
-                    isActive ? "text-primary scale-110" : "text-slate-400"
+                    "flex flex-col items-center justify-center gap-1 w-14 h-14 rounded-2xl transition-all duration-300 relative",
+                    isActive ? "text-primary bg-primary/5 scale-110" : "text-slate-400 hover:text-slate-200"
                   )}
                 >
-                  <Icon size={isActive ? 22 : 20} className={isActive ? "fill-primary/10" : ""} />
-                  <span className="text-[9px] font-black uppercase tracking-wider">{item.label}</span>
+                  <Icon size={isActive ? 22 : 20} className={cn("transition-transform", isActive ? "animate-pulse" : "")} />
+                  <span className="text-[8px] font-black uppercase tracking-tighter opacity-80">{item.label}</span>
+                  {isActive && (
+                    <motion.div 
+                      layoutId="activeDotMobile" 
+                      className="absolute -bottom-1 w-1 h-1 bg-primary rounded-full"
+                    />
+                  )}
                 </button>
               );
             })}
