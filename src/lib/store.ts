@@ -139,6 +139,9 @@ export interface StoreState {
   updateCustomer: (customer: Customer) => Promise<void>;
   deleteCustomer: (id: string) => Promise<void>;
   
+  // Bulk Actions
+  bulkDeleteProducts: (ids: string[]) => Promise<void>;
+  
   // Data Import
   importBulkData: (data: { products?: any[], sales?: any[], transactions?: any[], customers?: any[] }) => Promise<void>;
   
@@ -396,6 +399,14 @@ export const useStore = create<StoreState>()(
       deleteCustomer: async (id) => {
         const { error } = await supabase.from('customers').delete().eq('id', id);
         if (error) throw error;
+      },
+
+      bulkDeleteProducts: async (ids) => {
+        const { error } = await supabase.from('products').delete().in('id', ids);
+        if (error) throw error;
+        set((state) => ({
+          products: state.products.filter(p => !ids.includes(p.id))
+        }));
       },
 
       importBulkData: async (data) => {

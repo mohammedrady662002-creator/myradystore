@@ -1,6 +1,9 @@
-import React from 'react';
-import { Box, Search, Plus, ShoppingCart, Edit, Trash2, ImageIcon, Receipt, CheckCircle2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { Box, Search, Plus, ShoppingCart, Edit, Trash2, ImageIcon, Receipt, CheckCircle2, ChevronRight, X } from 'lucide-react';
 import { Product, Sale, Category, User } from '../types';
+import { useStore } from '../lib/store';
+import { cn } from '../lib/utils';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface InventoryTabProps {
   products: Product[];
@@ -25,6 +28,9 @@ export default function InventoryTab({
   formatDateTime, getMethodName
 }: InventoryTabProps) {
   const isOwner = currentUser?.role === 'owner';
+  const { bulkDeleteProducts } = useStore();
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [isDeletingBulk, setIsDeletingBulk] = useState(false);
 
   const filteredProducts = products.filter(product => {
     const matchesCategory = product.category === activeTab;
@@ -33,10 +39,78 @@ export default function InventoryTab({
     return matchesCategory && matchesSearch;
   }).sort((a, b) => a.code.localeCompare(b.code, undefined, { numeric: true }));
 
+  const toggleSelectAll = () => {
+    if (selectedIds.length === filteredProducts.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(filteredProducts.map(p => p.id));
+    }
+  };
+
+  const toggleSelectOne = (id: string) => {
+    setSelectedIds(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
+
+  const handleBulkDelete = async () => {
+    if (!confirm(`هل أنت متأكد من حذف ${selectedIds.length} عنصر؟ لا يمكن التراجع عن هذه الخطوة.`)) return;
+    
+    setIsDeletingBulk(true);
+    try {
+      await bulkDeleteProducts(selectedIds);
+      setSelectedIds([]);
+    } catch (err) {
+      alert('حدث خطأ أثناء الحذف الجماعي');
+    } finally {
+      setIsDeletingBulk(false);
+    }
+  };
+
   const totalStock = filteredProducts.reduce((sum, p) => sum + Number(p.quantity || 0), 0);
 
   return (
-    <div className="animate-fade-in print:hidden">
+    <div className="animate-fade-in print:hidden relative">
+      {/* Floating Bulk Action Bar */}
+      <AnimatePresence>
+        {selectedIds.length > 0 && viewMode === 'inventory' && (
+          <motion.div 
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            className="fixed bottom-24 lg:bottom-10 left-1/2 -translate-x-1/2 z-[100] bg-slate-900 text-white px-8 py-5 rounded-[2.5rem] shadow-2xl flex items-center gap-8 border border-white/10"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center font-black text-xs">
+                {selectedIds.length}
+              </div>
+              <span className="font-bold text-sm">عناصر مختارة</span>
+            </div>
+            
+            <div className="w-px h-8 bg-white/10" />
+            
+            <div className="flex items-center gap-4">
+              <button 
+                onClick={handleBulkDelete}
+                disabled={isDeletingBulk}
+                className="flex items-center gap-2 text-rose-400 hover:text-rose-500 font-black text-xs transition-colors disabled:opacity-50"
+              >
+                <Trash2 size={18} />
+                <span>حذف جماعي</span>
+              </button>
+              
+              <button 
+                onClick={() => setSelectedIds([])}
+                className="flex items-center gap-2 text-slate-400 hover:text-white font-black text-xs transition-colors"
+              >
+                <X size={18} />
+                <span>إلغاء</span>
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="flex flex-col xl:flex-row justify-between items-center gap-4 mb-8">
         <div className="flex bg-slate-200/50 p-1.5 rounded-2xl w-full xl:w-auto border border-slate-200">
           <button onClick={() => setViewMode('inventory')} className={`flex-1 xl:flex-none px-6 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${viewMode === 'inventory' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}><Box size={18} /> المخزون والخدمات</button>
@@ -78,6 +152,16 @@ export default function InventoryTab({
             <table className="w-full text-right border-collapse">
               <thead>
                 <tr className="bg-slate-50/50 border-b border-slate-200/80 text-slate-500 text-xs uppercase tracking-wider font-black">
+                  {isOwner && (
+                    <th className="p-5 w-12 text-center">
+                      <input 
+                        type="checkbox" 
+                        checked={selectedIds.length > 0 && selectedIds.length === filteredProducts.length}
+                        onChange={toggleSelectAll}
+                        className="w-5 h-5 rounded-lg border-2 border-slate-200 text-primary focus:ring-primary transition-all cursor-pointer"
+                      />
+                    </th>
+                  )}
                   <th className="p-5 w-24 text-center">الصورة</th>
                   <th className="p-5">التفاصيل</th>
                   <th className="p-5 w-32 text-center">الكود / QR</th>
@@ -88,7 +172,23 @@ export default function InventoryTab({
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {filteredProducts.map((product) => (
-                  <tr key={product.id} className="hover:bg-slate-50/80 transition-colors group">
+                  <tr 
+                    key={product.id} 
+                    className={cn(
+                      "hover:bg-slate-50/80 transition-colors group",
+                      selectedIds.includes(product.id) && "bg-primary/5 hover:bg-primary/5"
+                    )}
+                  >
+                    {isOwner && (
+                      <td className="p-5 text-center">
+                        <input 
+                          type="checkbox" 
+                          checked={selectedIds.includes(product.id)}
+                          onChange={() => toggleSelectOne(product.id)}
+                          className="w-5 h-5 rounded-lg border-2 border-slate-200 text-primary focus:ring-primary transition-all cursor-pointer"
+                        />
+                      </td>
+                    )}
                     <td className="p-5 text-center">
                       <div className="w-14 h-14 rounded-2xl bg-slate-100 border border-slate-200 overflow-hidden mx-auto flex items-center justify-center shadow-sm">
                         {product.imageUrl ? <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" /> : <ImageIcon className="text-slate-300" size={20} />}
