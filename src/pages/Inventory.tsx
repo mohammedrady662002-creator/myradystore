@@ -1020,10 +1020,10 @@ function ProductModal({
                   <span className="font-black text-sm">خدمة (بدون مخزون)</span>
                 </button>
               </div>
-              {['accessories', 'spare_parts'].includes(data.category || '') && (
+              {['accessories', 'spare_parts', 'hardware', 'software'].includes(data.category || '') && (
                 <p className="text-[9px] font-bold text-slate-400 mr-2">* يتم تفعيل نظام المخزون تلقائياً لهذا القسم</p>
               )}
-              {['maintenance', 'software', 'hardware', 'finance'].includes(data.category || '') && (
+              {['maintenance', 'finance'].includes(data.category || '') && (
                 <p className="text-[9px] font-bold text-indigo-400 mr-2">* يتم تفعيل نظام "بدون مخزون" تلقائياً لهذا القسم</p>
               )}
             </div>
@@ -1062,8 +1062,8 @@ function ProductModal({
                   value={data.category}
                   onChange={(e) => {
                     const cat = e.target.value as Category;
-                    const isTangible = ['accessories', 'spare_parts'].includes(cat);
-                    const isServiceOnly = ['maintenance', 'software', 'hardware', 'finance'].includes(cat);
+                    const isTangible = ['accessories', 'spare_parts', 'hardware', 'software'].includes(cat);
+                    const isServiceOnly = ['maintenance', 'finance'].includes(cat);
                     setData(prev => ({ 
                       ...prev, 
                       category: cat,
