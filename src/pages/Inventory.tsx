@@ -49,6 +49,9 @@ export default function Inventory() {
   const [isAnalyzingImage, setIsAnalyzingImage] = useState(false);
   const [searchConfidence, setSearchConfidence] = useState<number | null>(null);
   
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [isDeletingBulk, setIsDeletingBulk] = useState(false);
+  
   const isOwner = currentUser?.role === 'owner';
 
   const handleImageSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -99,10 +102,39 @@ export default function Inventory() {
           return b.quantity - a.quantity;
         case 'newest':
         default:
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+          return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
       }
     });
   }, [products, search, activeCategory, sortBy]);
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === filteredProducts.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(filteredProducts.map(p => p.id));
+    }
+  };
+
+  const toggleSelectOne = (id: string) => {
+    setSelectedIds(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
+
+  const handleBulkDelete = async () => {
+    if (!confirm(`هل أنت متأكد من حذف ${selectedIds.length} عنصر؟ لا يمكن التراجع عن هذه الخطوة.`)) return;
+    
+    setIsDeletingBulk(true);
+    try {
+      const { bulkDeleteProducts } = useStore.getState();
+      await bulkDeleteProducts(selectedIds);
+      setSelectedIds([]);
+    } catch (err) {
+      alert('حدث خطأ أثناء الحذف الجماعي');
+    } finally {
+      setIsDeletingBulk(false);
+    }
+  };
 
   const handleSaveProduct = async (data: Partial<Product>) => {
     try {
@@ -133,7 +165,47 @@ export default function Inventory() {
   };
 
   return (
-    <div className="space-y-8 pb-32 lg:pb-8 font-sans">
+    <div className="space-y-8 pb-32 lg:pb-8 font-sans relative">
+      {/* Floating Bulk Action Bar */}
+      <AnimatePresence>
+        {selectedIds.length > 0 && isOwner && (
+          <motion.div 
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            className="fixed bottom-24 lg:bottom-10 left-1/2 -translate-x-1/2 z-[100] bg-slate-900 dark:bg-slate-800 text-white px-8 py-5 rounded-[2.5rem] shadow-2xl flex items-center gap-8 border border-white/10"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center font-black text-xs text-white">
+                {selectedIds.length}
+              </div>
+              <span className="font-bold text-sm">عناصر مختارة</span>
+            </div>
+            
+            <div className="w-px h-8 bg-white/10" />
+            
+            <div className="flex items-center gap-4">
+              <button 
+                onClick={handleBulkDelete}
+                disabled={isDeletingBulk}
+                className="flex items-center gap-2 text-rose-400 hover:text-rose-500 font-black text-xs transition-colors disabled:opacity-50"
+              >
+                <Trash2 size={18} />
+                <span>حذف جماعي</span>
+              </button>
+              
+              <button 
+                onClick={() => setSelectedIds([])}
+                className="flex items-center gap-2 text-slate-400 hover:text-white font-black text-xs transition-colors"
+              >
+                <X size={18} />
+                <span>إلغاء التحديد</span>
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Header & Actions */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
@@ -262,6 +334,20 @@ export default function Inventory() {
           </div>
 
           <div className="flex overflow-x-auto gap-2 no-scrollbar pb-2 xl:pb-0">
+            {isOwner && filteredProducts.length > 0 && (
+              <button 
+                onClick={toggleSelectAll}
+                className={cn(
+                  "px-6 py-4 rounded-2xl font-bold text-xs whitespace-nowrap transition-all border shadow-sm flex items-center gap-2",
+                  selectedIds.length === filteredProducts.length && selectedIds.length > 0
+                    ? "bg-emerald-500 text-white border-transparent" 
+                    : "bg-white dark:bg-slate-900 text-slate-500 border-slate-200 dark:border-white/5 hover:border-primary/50"
+                )}
+              >
+                {selectedIds.length === filteredProducts.length && selectedIds.length > 0 ? <Check size={16} /> : <div className="w-4 h-4 rounded border border-current opacity-50" />}
+                <span>{selectedIds.length === filteredProducts.length ? 'إلغاء الكل' : 'تحديد الكل'}</span>
+              </button>
+            )}
             <button 
               onClick={() => setActiveCategory('all')}
               className={cn(
@@ -303,8 +389,23 @@ export default function Inventory() {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.2, delay: i * 0.05 }}
-                className="bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-100 dark:border-white/5 shadow-sm hover:shadow-xl transition-all group relative overflow-hidden"
+                className={cn(
+                  "bg-white dark:bg-slate-900 p-4 rounded-3xl border transition-all group relative overflow-hidden",
+                  selectedIds.includes(p.id) ? "border-primary shadow-xl ring-2 ring-primary/20" : "border-slate-100 dark:border-white/5 shadow-sm hover:shadow-xl"
+                )}
               >
+                {/* Selection Checkbox */}
+                {isOwner && (
+                  <div className="absolute top-6 left-6 z-20">
+                    <input 
+                      type="checkbox" 
+                      checked={selectedIds.includes(p.id)}
+                      onChange={() => toggleSelectOne(p.id)}
+                      className="w-6 h-6 rounded-lg border-2 border-white/20 text-primary focus:ring-primary accent-primary cursor-pointer shadow-lg"
+                    />
+                  </div>
+                )}
+
                 {/* Product Image Area */}
                 <div className="aspect-square bg-slate-50 dark:bg-slate-800/50 rounded-2xl overflow-hidden mb-4 relative group/img">
                   {p.imageUrl ? (

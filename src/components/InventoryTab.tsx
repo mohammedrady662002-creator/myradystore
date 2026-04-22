@@ -32,6 +32,12 @@ export default function InventoryTab({
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isDeletingBulk, setIsDeletingBulk] = useState(false);
 
+  // Clear selection when mode changes
+  const handleViewModeChange = (mode: 'inventory' | 'sales') => {
+    setSelectedIds([]);
+    setViewMode(mode);
+  };
+
   const filteredProducts = products.filter(product => {
     const matchesCategory = product.category === activeTab;
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -39,11 +45,21 @@ export default function InventoryTab({
     return matchesCategory && matchesSearch;
   }).sort((a, b) => a.code.localeCompare(b.code, undefined, { numeric: true }));
 
+  const filteredSales = sales.filter(s => s.category === activeTab);
+
   const toggleSelectAll = () => {
-    if (selectedIds.length === filteredProducts.length) {
-      setSelectedIds([]);
+    if (viewMode === 'inventory') {
+      if (selectedIds.length === filteredProducts.length) {
+        setSelectedIds([]);
+      } else {
+        setSelectedIds(filteredProducts.map(p => p.id));
+      }
     } else {
-      setSelectedIds(filteredProducts.map(p => p.id));
+      if (selectedIds.length === filteredSales.length) {
+        setSelectedIds([]);
+      } else {
+        setSelectedIds(filteredSales.map(s => s.id));
+      }
     }
   };
 
@@ -54,11 +70,19 @@ export default function InventoryTab({
   };
 
   const handleBulkDelete = async () => {
-    if (!confirm(`هل أنت متأكد من حذف ${selectedIds.length} عنصر؟ لا يمكن التراجع عن هذه الخطوة.`)) return;
+    const count = selectedIds.length;
+    if (!confirm(`هل أنت متأكد من حذف ${count} ${viewMode === 'inventory' ? 'عنصر' : 'عملية بيع'}؟ لا يمكن التراجع عن هذه الخطوة.`)) return;
     
     setIsDeletingBulk(true);
     try {
-      await bulkDeleteProducts(selectedIds);
+      if (viewMode === 'inventory') {
+        await bulkDeleteProducts(selectedIds);
+      } else {
+        // Implementation for bulk delete sales could be added here if the store supports it
+        // For now, let's stick to products or alert if not supported
+        alert('حذف المبيعات حالياً يتم بشكل فردي لضمان دقة الحسابات');
+        return;
+      }
       setSelectedIds([]);
     } catch (err) {
       alert('حدث خطأ أثناء الحذف الجماعي');
@@ -73,15 +97,15 @@ export default function InventoryTab({
     <div className="animate-fade-in print:hidden relative">
       {/* Floating Bulk Action Bar */}
       <AnimatePresence>
-        {selectedIds.length > 0 && viewMode === 'inventory' && (
+        {selectedIds.length > 0 && isOwner && (
           <motion.div 
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}
-            className="fixed bottom-24 lg:bottom-10 left-1/2 -translate-x-1/2 z-[100] bg-slate-900 text-white px-8 py-5 rounded-[2.5rem] shadow-2xl flex items-center gap-8 border border-white/10"
+            className="fixed bottom-24 lg:bottom-10 left-1/2 -translate-x-1/2 z-[100] bg-slate-900 dark:bg-slate-800 text-white px-8 py-5 rounded-[2.5rem] shadow-2xl flex items-center gap-8 border border-white/10"
           >
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center font-black text-xs">
+              <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center font-black text-xs text-white">
                 {selectedIds.length}
               </div>
               <span className="font-bold text-sm">عناصر مختارة</span>
@@ -90,21 +114,23 @@ export default function InventoryTab({
             <div className="w-px h-8 bg-white/10" />
             
             <div className="flex items-center gap-4">
-              <button 
-                onClick={handleBulkDelete}
-                disabled={isDeletingBulk}
-                className="flex items-center gap-2 text-rose-400 hover:text-rose-500 font-black text-xs transition-colors disabled:opacity-50"
-              >
-                <Trash2 size={18} />
-                <span>حذف جماعي</span>
-              </button>
+              {viewMode === 'inventory' && (
+                <button 
+                  onClick={handleBulkDelete}
+                  disabled={isDeletingBulk}
+                  className="flex items-center gap-2 text-rose-400 hover:text-rose-500 font-black text-xs transition-colors disabled:opacity-50"
+                >
+                  <Trash2 size={18} />
+                  <span>حذف جماعي</span>
+                </button>
+              )}
               
               <button 
                 onClick={() => setSelectedIds([])}
                 className="flex items-center gap-2 text-slate-400 hover:text-white font-black text-xs transition-colors"
               >
                 <X size={18} />
-                <span>إلغاء</span>
+                <span>إلغاء التحديد</span>
               </button>
             </div>
           </motion.div>
@@ -112,9 +138,9 @@ export default function InventoryTab({
       </AnimatePresence>
 
       <div className="flex flex-col xl:flex-row justify-between items-center gap-4 mb-8">
-        <div className="flex bg-slate-200/50 p-1.5 rounded-2xl w-full xl:w-auto border border-slate-200">
-          <button onClick={() => setViewMode('inventory')} className={`flex-1 xl:flex-none px-6 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${viewMode === 'inventory' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}><Box size={18} /> المخزون والخدمات</button>
-          <button onClick={() => setViewMode('sales')} className={`flex-1 xl:flex-none px-6 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${viewMode === 'sales' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}><Receipt size={18} /> سجل المبيعات</button>
+        <div className="flex bg-slate-200/50 dark:bg-slate-800/50 p-1.5 rounded-2xl w-full xl:w-auto border border-slate-200 dark:border-white/5">
+          <button onClick={() => handleViewModeChange('inventory')} className={`flex-1 xl:flex-none px-6 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${viewMode === 'inventory' ? 'bg-white dark:bg-slate-700 text-primary shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}><Box size={18} /> المخزون والخدمات</button>
+          <button onClick={() => handleViewModeChange('sales')} className={`flex-1 xl:flex-none px-6 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${viewMode === 'sales' ? 'bg-white dark:bg-slate-700 text-primary shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}><Receipt size={18} /> سجل المبيعات</button>
         </div>
 
         <div className="w-full xl:w-1/3 relative group">
@@ -154,12 +180,15 @@ export default function InventoryTab({
                 <tr className="bg-slate-50/50 border-b border-slate-200/80 text-slate-500 text-xs uppercase tracking-wider font-black">
                   {isOwner && (
                     <th className="p-5 w-12 text-center">
-                      <input 
-                        type="checkbox" 
-                        checked={selectedIds.length > 0 && selectedIds.length === filteredProducts.length}
-                        onChange={toggleSelectAll}
-                        className="w-5 h-5 rounded-lg border-2 border-slate-200 text-primary focus:ring-primary transition-all cursor-pointer"
-                      />
+                      <div className="flex flex-col items-center gap-1">
+                        <input 
+                          type="checkbox" 
+                          checked={selectedIds.length > 0 && selectedIds.length === filteredProducts.length}
+                          onChange={toggleSelectAll}
+                          className="w-5 h-5 rounded border-slate-300 text-primary focus:ring-primary accent-primary cursor-pointer"
+                        />
+                        <span className="text-[8px]">الكل</span>
+                      </div>
                     </th>
                   )}
                   <th className="p-5 w-24 text-center">الصورة</th>
@@ -185,7 +214,7 @@ export default function InventoryTab({
                           type="checkbox" 
                           checked={selectedIds.includes(product.id)}
                           onChange={() => toggleSelectOne(product.id)}
-                          className="w-5 h-5 rounded-lg border-2 border-slate-200 text-primary focus:ring-primary transition-all cursor-pointer"
+                          className="w-5 h-5 rounded border-slate-300 text-primary focus:ring-primary accent-primary cursor-pointer"
                         />
                       </td>
                     )}
@@ -234,6 +263,19 @@ export default function InventoryTab({
             <table className="w-full text-right border-collapse">
               <thead>
                 <tr className="bg-slate-50/50 border-b border-slate-200/80 text-slate-500 text-xs uppercase tracking-wider font-black">
+                  {isOwner && (
+                    <th className="p-5 w-12 text-center">
+                      <div className="flex flex-col items-center gap-1">
+                        <input 
+                          type="checkbox" 
+                          checked={selectedIds.length > 0 && selectedIds.length === filteredSales.length}
+                          onChange={toggleSelectAll}
+                          className="w-5 h-5 rounded border-slate-300 text-primary focus:ring-primary accent-primary cursor-pointer"
+                        />
+                        <span className="text-[8px]">الكل</span>
+                      </div>
+                    </th>
+                  )}
                   <th className="p-5">رقم العملية</th>
                   <th className="p-5">المنتج / الخدمة</th>
                   <th className="p-5 text-center">الكمية</th>
@@ -246,8 +288,24 @@ export default function InventoryTab({
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {sales.filter(s => s.category === activeTab).map((sale) => (
-                  <tr key={sale.id} className="hover:bg-slate-50/80 transition-colors group">
+                {filteredSales.map((sale) => (
+                  <tr 
+                    key={sale.id} 
+                    className={cn(
+                      "hover:bg-slate-50/80 transition-colors group",
+                      selectedIds.includes(sale.id) && "bg-primary/5"
+                    )}
+                  >
+                    {isOwner && (
+                      <td className="p-5 text-center">
+                        <input 
+                          type="checkbox" 
+                          checked={selectedIds.includes(sale.id)}
+                          onChange={() => toggleSelectOne(sale.id)}
+                          className="w-5 h-5 rounded border-slate-300 text-primary focus:ring-primary accent-primary cursor-pointer"
+                        />
+                      </td>
+                    )}
                     <td className="p-5 font-mono text-xs font-bold text-slate-400">#{sale.id.slice(-6)}</td>
                     <td className="p-5 font-bold text-slate-800 text-sm">{sale.productName}</td>
                     <td className="p-5 text-center font-bold text-slate-600">{sale.quantity}</td>
