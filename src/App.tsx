@@ -44,15 +44,15 @@ export default function App() {
     addTransaction,
     importBulkData
   } = useStore();
-  const [activeTab, setActiveTab] = useState(currentUser?.role === 'owner' ? 'dashboard' : 'inventory');
+  const [activeTab, setActiveTab] = useState(currentUser?.role === 'owner' ? 'dashboard' : 'sales');
   const [showSettings, setShowSettings] = useState(false);
   const [isRestoring, setIsRestoring] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
   useEffect(() => {
     // If an employee somehow ends up on a restricted tab, move them
-    // Allow 'sales' now
-    if (currentUser?.role === 'employee' && ['dashboard', 'reports', 'audit'].includes(activeTab)) {
+    // Land on 'sales' by default for employee
+    if (currentUser?.role === 'employee' && ['dashboard', 'inventory', 'reports', 'audit'].includes(activeTab)) {
       setActiveTab('sales');
     }
   }, [currentUser, activeTab]);
@@ -201,8 +201,8 @@ export default function App() {
 
   const renderContent = () => {
     // Role based access restriction
-    if (currentUser?.role === 'employee' && ['inventory', 'audit', 'reports'].includes(activeTab)) {
-      return <Dashboard />;
+    if (currentUser?.role === 'employee' && ['dashboard', 'inventory', 'audit', 'reports'].includes(activeTab)) {
+      return <Sales />;
     }
 
     switch (activeTab) {

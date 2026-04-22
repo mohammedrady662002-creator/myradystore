@@ -180,32 +180,32 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="glass p-8 rounded-[2.5rem] relative group luxury-shadow border border-white/5 bg-gradient-to-br from-emerald-500/5 to-transparent overflow-hidden">
-            <div className="absolute top-0 right-0 w-1 h-full bg-emerald-500 opacity-20" />
-            <div className="flex justify-between items-start mb-4">
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">صافي الأرباح المحققة</p>
-                <p className="text-[8px] font-bold uppercase text-emerald-500 tracking-wider">السيولة الربحية الصافية</p>
-              </div>
-              {isOwner && (
+          {isOwner && (
+            <div className="glass p-8 rounded-[2.5rem] relative group luxury-shadow border border-white/5 bg-gradient-to-br from-emerald-500/5 to-transparent overflow-hidden">
+              <div className="absolute top-0 right-0 w-1 h-full bg-emerald-500 opacity-20" />
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">صافي الأرباح المحققة</p>
+                  <p className="text-[8px] font-bold uppercase text-emerald-500 tracking-wider">السيولة الربحية الصافية</p>
+                </div>
                 <div className="text-left bg-emerald-500/10 px-2 py-1 rounded-lg border border-emerald-500/20">
                   <p className="text-[7px] font-black text-slate-500 uppercase">الربح المتوقع بالمخزن</p>
                   <p className="text-[9px] font-black text-emerald-500 leading-none">+{formatCurrency(statsData.potentialProfit)}</p>
                 </div>
+              </div>
+              <h3 className="text-3xl font-black text-luxury tracking-tighter mb-2 text-emerald-500">
+                 {formatCurrency(statsData.totalProfit)}
+              </h3>
+              {statsData.totalSales > 0 && (
+                <div className="flex items-center gap-2 mt-4">
+                   <div className="px-2 py-0.5 bg-emerald-500 text-white text-[8px] font-black rounded-md">
+                      MARKUP: {Math.round((statsData.totalProfit / (statsData.totalSales - statsData.totalProfit)) * 100)}%
+                   </div>
+                   <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">متوسط ربحية المتجر</span>
+                </div>
               )}
             </div>
-            <h3 className="text-3xl font-black text-luxury tracking-tighter mb-2 text-emerald-500">
-               {isOwner ? formatCurrency(statsData.totalProfit) : '••••••'}
-            </h3>
-            {isOwner && statsData.totalSales > 0 && (
-              <div className="flex items-center gap-2 mt-4">
-                 <div className="px-2 py-0.5 bg-emerald-500 text-white text-[8px] font-black rounded-md">
-                    MARKUP: {Math.round((statsData.totalProfit / (statsData.totalSales - statsData.totalProfit)) * 100)}%
-                 </div>
-                 <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">متوسط ربحية المتجر</span>
-              </div>
-            )}
-          </div>
+          )}
         </div>
       </div>
 
