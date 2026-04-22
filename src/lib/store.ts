@@ -279,7 +279,11 @@ export const useStore = create<StoreState>()(
             const msg = err.message === 'Failed to fetch' 
               ? 'فشل الاتصال: يرجى التأكد من رابط السرفر أو تفعيل Anonymous Auth في Supabase' 
               : err.message;
-            set({ syncError: msg, isInitialized: true });
+            set({ 
+              syncError: msg, 
+              isInitialized: true,
+              syncStatus: { products: true, sales: true, transactions: true, customers: true } 
+            });
             initialized = true;
           }
         };
@@ -290,9 +294,12 @@ export const useStore = create<StoreState>()(
         setTimeout(() => {
           if (!initialized) {
             console.warn('⚠️ Initialization timed out, proceeding with local data');
-            set({ isInitialized: true });
+            set({ 
+              isInitialized: true,
+              syncStatus: { products: true, sales: true, transactions: true, customers: true }
+            });
           }
-        }, 5000);
+        }, 8000); // Increased to 8s for slower mobile connections
 
         // Realtime Subscriptions
         const productsChannel = supabase.channel('products-all')
