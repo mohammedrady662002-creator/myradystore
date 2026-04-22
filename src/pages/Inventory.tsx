@@ -36,6 +36,7 @@ const CATEGORIES: { id: Category; label: string; icon: any }[] = [
   { id: 'hardware', label: 'هاتف محمول', icon: Smartphone },
   { id: 'maintenance', label: 'خدمات صيانة', icon: Wrench },
   { id: 'software', label: 'سوفت وير', icon: Box },
+  { id: 'finance', label: 'خدمات مالية', icon: Box },
 ];
 
 export default function Inventory() {
@@ -768,14 +769,17 @@ export default function Inventory() {
 }
 
 function QuickViewModal({ product, onClose }: { product: Product, onClose: () => void }) {
+  const { currentUser } = useStore();
+  const isOwner = currentUser?.role === 'owner';
+
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[500] flex items-center justify-center p-4">
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
       <motion.div 
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="relative bg-white dark:bg-slate-900 w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden p-8"
+        className="relative bg-white dark:bg-slate-900 w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden p-8 z-10"
       >
         <div className="flex justify-between items-start mb-6">
           <div className="flex items-center gap-4">
@@ -860,6 +864,9 @@ function ProductModal({
   onSave: (data: Partial<Product>) => void,
   initialData?: Product | null
 }) {
+  const { currentUser } = useStore();
+  const isOwner = currentUser?.role === 'owner';
+
   const [data, setData] = useState<Partial<Product>>(initialData || {
     category: 'accessories',
     type: 'product',
@@ -916,19 +923,19 @@ function ProductModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[600] flex items-center justify-center p-4 sm:p-6 md:p-10">
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
       />
       <motion.div 
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="relative bg-white dark:bg-slate-900 w-full max-w-2xl rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+        className="relative bg-white dark:bg-slate-900 w-full max-w-2xl rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] z-10"
       >
         <div className="p-8 border-b border-slate-100 dark:border-white/5 flex items-center justify-between">
           <div>
