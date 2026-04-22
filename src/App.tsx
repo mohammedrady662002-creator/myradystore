@@ -87,11 +87,16 @@ export default function App() {
   }, [initializeStore]);
 
   useEffect(() => {
-    // Sync theme with document element
+    // Force set the theme based ONly on the app's internal state
+    const root = document.documentElement;
     if (isDarkMode) {
-      document.documentElement.classList.add('dark');
+      root.classList.add('dark');
+      root.style.colorScheme = 'dark';
+      root.style.backgroundColor = '#060608'; // Ensure background changes even if tailwind is late
     } else {
-      document.documentElement.classList.remove('dark');
+      root.classList.remove('dark');
+      root.style.colorScheme = 'light';
+      root.style.backgroundColor = '#f8fafc'; // slate-50
     }
   }, [isDarkMode]);
 

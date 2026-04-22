@@ -60,11 +60,11 @@ export default function Layout({ children, activeTab, setActiveTab }: {
 
   return (
     <div className="min-h-screen transition-colors duration-300">
-      <div className="flex bg-slate-50 dark:bg-[#060608] text-slate-900 dark:text-slate-100 min-h-screen font-sans transition-colors duration-300 overflow-x-hidden" dir="rtl">
+      <div className="flex bg-slate-50 dark:bg-[#060608] text-slate-900 dark:text-slate-100 h-screen font-sans transition-colors duration-300 overflow-hidden" dir="rtl">
         
         {/* Sidebar - Desktop */}
-        <aside className="hidden lg:flex flex-col w-72 bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-white/5 sticky top-0 h-screen transition-all luxury-shadow z-50">
-          <div className="p-10 flex flex-col items-center text-center">
+        <aside className="hidden lg:flex flex-col w-72 bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-white/5 h-full transition-all luxury-shadow z-50 flex-shrink-0">
+          <div className="p-10 flex flex-col items-center text-center flex-shrink-0">
             <div className="w-20 h-20 bg-slate-900 dark:bg-primary rounded-[2rem] flex items-center justify-center shadow-2xl mb-4 group cursor-pointer animate-[float_6s_infinite_ease-in-out]">
               <Smartphone className="text-white group-hover:scale-110 transition-transform duration-500" size={40} />
             </div>
@@ -75,7 +75,7 @@ export default function Layout({ children, activeTab, setActiveTab }: {
             </div>
           </div>
 
-          <nav className="flex-1 px-6 space-y-3 mt-4">
+          <nav className="flex-1 px-6 space-y-3 mt-4 overflow-y-auto custom-scrollbar pb-8">
             {filteredNavItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
@@ -192,10 +192,10 @@ export default function Layout({ children, activeTab, setActiveTab }: {
         </AnimatePresence>
 
         {/* Main Content Area */}
-        <div className="flex-1 flex flex-col min-w-0">
+        <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
           
           {/* Top Header - Mobile and Desktop */}
-          <header className="h-20 bg-white/80 dark:bg-slate-900/60 backdrop-blur-xl border-b border-slate-200 dark:border-white/5 sticky top-0 z-50 flex items-center justify-between px-4 lg:px-8">
+          <header className="h-20 bg-white/80 dark:bg-slate-900/60 backdrop-blur-xl border-b border-slate-200 dark:border-white/5 flex-shrink-0 z-50 flex items-center justify-between px-4 lg:px-8">
             <div className="flex items-center gap-4">
               <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-2 text-slate-500">
                 <Menu size={24} />

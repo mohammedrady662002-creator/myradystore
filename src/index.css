@@ -1,11 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-sans: "Tajawal", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Space Grotesk", sans-serif;
   
   --color-primary: hsl(262 83% 58%);
+  
+  --dark-mode: class;
   
   /* Overriding common colors to HSL to prevent oklch parsing issues in html2canvas */
   --color-slate-50: hsl(220 20% 98%);
