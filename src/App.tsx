@@ -43,7 +43,7 @@ export default function App() {
     addSale,
     addTransaction,
     importBulkData,
-    migrateExistingProductsToService
+    migrateExistingProductsToProduct
   } = useStore();
   const [activeTab, setActiveTab] = useState(currentUser?.role === 'owner' ? 'dashboard' : 'sales');
   const [showSettings, setShowSettings] = useState(false);
@@ -309,18 +309,18 @@ export default function App() {
                     <div className="flex flex-col gap-3">
                       <button 
                         onClick={async () => {
-                           if(confirm('هل تريد فعلاً تحويل كافة المنتجات المضافة مسبقاً إلى نظام "بدون مخزون"؟')) {
+                           if(confirm('هل تريد فعلاً تحويل كافة المنتجات المضافة مسبقاً إلى نظام "بكمية ومخزون"؟')) {
                               try {
-                                await migrateExistingProductsToService();
-                                alert('تم التحديث بنجاح!');
+                                await migrateExistingProductsToProduct();
+                                alert('تم التحديث بنجاح! كافة المنتجات الآن تتبع نظام المخزون.');
                               } catch(e) {
                                 alert('فشل التحديث');
                               }
                            }
                         }}
-                        className="w-full flex items-center justify-between p-4 bg-indigo-500/5 dark:bg-indigo-500/10 border border-indigo-500/20 rounded-2xl hover:bg-indigo-500/20 transition-all font-black text-xs text-indigo-400 group"
+                        className="w-full flex items-center justify-between p-4 bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-500/20 rounded-2xl hover:bg-emerald-500/20 transition-all font-black text-xs text-emerald-500 group"
                       >
-                        <span>تحديث كافة المنتجات إلى "بدون مخزون" (كويري)</span>
+                        <span>تحديث كافة المنتجات لتتبع "نظام المخزون"</span>
                         <RotateCcw size={18} className="group-hover:rotate-180 transition-transform duration-500" />
                       </button>
                       <button 

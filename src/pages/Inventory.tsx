@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Plus, 
@@ -772,7 +773,7 @@ function QuickViewModal({ product, onClose }: { product: Product, onClose: () =>
   const { currentUser } = useStore();
   const isOwner = currentUser?.role === 'owner';
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[500] flex items-center justify-center p-4">
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
       <motion.div 
@@ -851,7 +852,8 @@ function QuickViewModal({ product, onClose }: { product: Product, onClose: () =>
 
         <button onClick={onClose} className="w-full mt-8 py-4 bg-slate-900 dark:bg-primary text-white rounded-2xl font-black text-xs">إغلاق</button>
       </motion.div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -922,7 +924,7 @@ function ProductModal({
     }
   };
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[600] flex items-center justify-center p-4 sm:p-6 md:p-10">
       <motion.div 
         initial={{ opacity: 0 }}
@@ -1169,6 +1171,7 @@ function ProductModal({
           </button>
         </div>
       </motion.div>
-    </div>
+    </div>,
+    document.body
   );
 }
