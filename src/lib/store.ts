@@ -352,8 +352,17 @@ export const useStore = create<StoreState>()(
       },
       
       deleteProduct: async (id) => {
-        const { error } = await supabase.from('products').delete().eq('id', id);
-        if (error) throw error;
+        // Optimistic update
+        const previousProducts = get().products;
+        set({ products: previousProducts.filter(p => p.id !== id) });
+        
+        try {
+          const { error } = await supabase.from('products').delete().eq('id', id);
+          if (error) throw error;
+        } catch (err) {
+          set({ products: previousProducts });
+          throw err;
+        }
       },
       
       addSale: async (sale) => {
@@ -402,11 +411,17 @@ export const useStore = create<StoreState>()(
       },
 
       bulkDeleteProducts: async (ids) => {
-        const { error } = await supabase.from('products').delete().in('id', ids);
-        if (error) throw error;
-        set((state) => ({
-          products: state.products.filter(p => !ids.includes(p.id))
-        }));
+        // Optimistic update
+        const previousProducts = get().products;
+        set({ products: previousProducts.filter(p => !ids.includes(p.id)) });
+        
+        try {
+          const { error } = await supabase.from('products').delete().in('id', ids);
+          if (error) throw error;
+        } catch (err) {
+          set({ products: previousProducts });
+          throw err;
+        }
       },
 
       importBulkData: async (data) => {

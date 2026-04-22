@@ -22,7 +22,9 @@ import {
   Camera,
   Smartphone,
   Wrench,
-  Cpu
+  Cpu,
+  LayoutGrid,
+  List
 } from 'lucide-react';
 import { useStore, Product, Category } from '../lib/store';
 import { cn, formatCurrency, generateId } from '../lib/utils';
@@ -41,6 +43,7 @@ export default function Inventory() {
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState<Category | 'all'>('all');
   const [sortBy, setSortBy] = useState<'newest' | 'name' | 'price-low' | 'price-high' | 'qty-low' | 'qty-high'>('newest');
+  const [viewType, setViewType] = useState<'grid' | 'list'>('grid');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -316,8 +319,30 @@ export default function Inventory() {
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-2 lg:gap-4 items-center">
-          <div className="relative">
+          <div className="flex flex-wrap gap-2 lg:gap-4 items-center">
+            {/* View Toggle */}
+            <div className="flex bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 p-1 rounded-2xl shadow-sm">
+              <button 
+                onClick={() => setViewType('grid')}
+                className={cn(
+                  "p-3 rounded-xl transition-all",
+                  viewType === 'grid' ? "bg-primary text-white shadow-lg shadow-primary/20" : "text-slate-400 hover:text-slate-600"
+                )}
+              >
+                <LayoutGrid size={18} />
+              </button>
+              <button 
+                onClick={() => setViewType('list')}
+                className={cn(
+                  "p-3 rounded-xl transition-all",
+                  viewType === 'list' ? "bg-primary text-white shadow-lg shadow-primary/20" : "text-slate-400 hover:text-slate-600"
+                )}
+              >
+                <List size={18} />
+              </button>
+            </div>
+
+            <div className="relative">
             <select 
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
@@ -334,20 +359,6 @@ export default function Inventory() {
           </div>
 
           <div className="flex overflow-x-auto gap-2 no-scrollbar pb-2 xl:pb-0">
-            {isOwner && filteredProducts.length > 0 && (
-              <button 
-                onClick={toggleSelectAll}
-                className={cn(
-                  "px-6 py-4 rounded-2xl font-bold text-xs whitespace-nowrap transition-all border shadow-sm flex items-center gap-2",
-                  selectedIds.length === filteredProducts.length && selectedIds.length > 0
-                    ? "bg-emerald-500 text-white border-transparent" 
-                    : "bg-white dark:bg-slate-900 text-slate-500 border-slate-200 dark:border-white/5 hover:border-primary/50"
-                )}
-              >
-                {selectedIds.length === filteredProducts.length && selectedIds.length > 0 ? <Check size={16} /> : <div className="w-4 h-4 rounded border border-current opacity-50" />}
-                <span>{selectedIds.length === filteredProducts.length ? 'إلغاء الكل' : 'تحديد الكل'}</span>
-              </button>
-            )}
             <button 
               onClick={() => setActiveCategory('all')}
               className={cn(
@@ -377,144 +388,283 @@ export default function Inventory() {
         </div>
       </div>
 
-      {/* Grid */}
-      {filteredProducts.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          <AnimatePresence mode="popLayout">
-            {filteredProducts.map((p, i) => (
-              <motion.div
-                key={p.id}
-                layout
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.2, delay: i * 0.05 }}
-                className={cn(
-                  "bg-white dark:bg-slate-900 p-4 rounded-3xl border transition-all group relative overflow-hidden",
-                  selectedIds.includes(p.id) ? "border-primary shadow-xl ring-2 ring-primary/20" : "border-slate-100 dark:border-white/5 shadow-sm hover:shadow-xl"
-                )}
-              >
-                {/* Selection Checkbox */}
-                {isOwner && (
-                  <div className="absolute top-6 left-6 z-20">
-                    <input 
-                      type="checkbox" 
-                      checked={selectedIds.includes(p.id)}
-                      onChange={() => toggleSelectOne(p.id)}
-                      className="w-6 h-6 rounded-lg border-2 border-white/20 text-primary focus:ring-primary accent-primary cursor-pointer shadow-lg"
-                    />
-                  </div>
-                )}
+      {/* Grid Header Actions (Integrated Select All) */}
+      {isOwner && filteredProducts.length > 0 && (
+        <div className="flex justify-start px-2">
+          <button 
+            onClick={toggleSelectAll}
+            className={cn(
+              "flex items-center gap-2 px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+              selectedIds.length === filteredProducts.length 
+                ? "bg-primary/10 text-primary" 
+                : "text-slate-400 hover:text-slate-900 dark:hover:text-white"
+            )}
+          >
+            <div className={cn(
+              "w-4 h-4 rounded border-2 flex items-center justify-center transition-all",
+              selectedIds.length === filteredProducts.length ? "bg-primary border-primary text-white" : "border-slate-200 dark:border-white/10"
+            )}>
+              {selectedIds.length === filteredProducts.length && <Check size={10} strokeWidth={4} />}
+            </div>
+            <span>{selectedIds.length === filteredProducts.length ? 'إلغاء تحديد الكل' : 'تحديد كل العناصر المعروضة'}</span>
+          </button>
+        </div>
+      )}
 
-                {/* Product Image Area */}
-                <div className="aspect-square bg-slate-50 dark:bg-slate-800/50 rounded-2xl overflow-hidden mb-4 relative group/img">
-                  {p.imageUrl ? (
-                    <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover transition-transform group-hover/img:scale-110" loading="lazy" />
-                  ) : (
-                    <div className="w-full h-full flex flex-col items-center justify-center text-slate-300 dark:text-slate-700">
-                      <ImageIcon size={48} strokeWidth={1} />
-                      <span className="text-[10px] font-black uppercase mt-2">لا توجد صورة</span>
+      {/* Content Area (Grid or List) */}
+      {filteredProducts.length > 0 ? (
+        viewType === 'grid' ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <AnimatePresence mode="popLayout">
+              {filteredProducts.map((p, i) => (
+                <motion.div
+                  key={p.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.2, delay: i * 0.05 }}
+                  className={cn(
+                    "bg-white dark:bg-slate-900 p-4 rounded-3xl border transition-all group relative overflow-hidden",
+                    selectedIds.includes(p.id) ? "border-primary shadow-xl ring-2 ring-primary/20" : "border-slate-100 dark:border-white/5 shadow-sm hover:shadow-xl"
+                  )}
+                >
+                  {/* Selection Checkbox - Subtle Overlay */}
+                  {isOwner && (
+                    <div 
+                      onClick={(e) => { e.stopPropagation(); toggleSelectOne(p.id); }}
+                      className={cn(
+                        "absolute top-6 left-6 z-30 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all cursor-pointer shadow-sm",
+                        selectedIds.includes(p.id) 
+                          ? "bg-primary border-primary text-white scale-110" 
+                          : "bg-white/40 dark:bg-black/20 border-white/40 backdrop-blur-md opacity-0 group-hover:opacity-100"
+                      )}
+                    >
+                      {selectedIds.includes(p.id) && <Check size={14} strokeWidth={3} />}
                     </div>
                   )}
-                  <div className="absolute top-2 left-2 flex flex-col gap-1 z-10">
-                    <div className="px-3 py-1 rounded-full bg-slate-900/60 backdrop-blur-md text-[10px] font-black text-white uppercase border border-white/10 tracking-widest">
-                      {p.type === 'service' ? 'خدمة' : 'منتج'} | {CATEGORIES.find(c => c.id === p.category)?.label || p.category}
+
+                  {/* Product Image Area */}
+                  <div className="aspect-square bg-slate-50 dark:bg-slate-800/50 rounded-2xl overflow-hidden mb-4 relative group/img">
+                    {p.imageUrl ? (
+                      <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover transition-transform group-hover/img:scale-110" loading="lazy" />
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center text-slate-300 dark:text-slate-700">
+                        <ImageIcon size={48} strokeWidth={1} />
+                        <span className="text-[10px] font-black uppercase mt-2">لا توجد صورة</span>
+                      </div>
+                    )}
+                    <div className="absolute top-2 left-2 flex flex-col gap-1 z-10">
+                      <div className="px-3 py-1 rounded-full bg-slate-900/60 backdrop-blur-md text-[10px] font-black text-white uppercase border border-white/10 tracking-widest">
+                        {p.type === 'service' ? 'خدمة' : 'منتج'} | {CATEGORIES.find(c => c.id === p.category)?.label || p.category}
+                      </div>
+                      {p.sellingPrice > p.wholesalePrice && (
+                        <div className="px-3 py-1 rounded-full bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest flex items-center gap-1 shadow-lg shadow-emerald-500/20">
+                          <span>%{Math.round(((p.sellingPrice - p.wholesalePrice) / p.sellingPrice) * 100)} ربح</span>
+                        </div>
+                      )}
                     </div>
-                    {p.sellingPrice > p.wholesalePrice && (
-                      <div className="px-3 py-1 rounded-full bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest flex items-center gap-1 shadow-lg shadow-emerald-500/20">
-                        <span>%{Math.round(((p.sellingPrice - p.wholesalePrice) / p.sellingPrice) * 100)} ربح</span>
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center p-4">
+                      <button 
+                        onClick={() => { setSelectedProduct(p); setIsQuickViewOpen(true); }}
+                        className="bg-white text-slate-900 px-6 py-2 rounded-xl text-[10px] font-black shadow-2xl transform translate-y-4 group-hover/img:translate-y-0 transition-all active:scale-95 uppercase tracking-widest"
+                      >
+                        بيانات تفصيلية
+                      </button>
+                    </div>
+                    {p.category !== 'software' && (p.quantity + (p.backroomQuantity || 0)) === 0 && (
+                      <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex items-center justify-center">
+                        <span className="bg-rose-500 text-white px-4 py-2 rounded-xl text-[10px] font-black rotate-[-10deg] uppercase tracking-tighter">نفذ من المخزن</span>
                       </div>
                     )}
                   </div>
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center p-4">
-                    <button 
-                      onClick={() => { setSelectedProduct(p); setIsQuickViewOpen(true); }}
-                      className="bg-white text-slate-900 px-6 py-2 rounded-xl text-[10px] font-black shadow-2xl transform translate-y-4 group-hover/img:translate-y-0 transition-all active:scale-95 uppercase tracking-widest"
-                    >
-                      بيانات تفصيلية
-                    </button>
-                  </div>
-                  {p.category !== 'software' && (p.quantity + (p.backroomQuantity || 0)) === 0 && (
-                    <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex items-center justify-center">
-                      <span className="bg-rose-500 text-white px-4 py-2 rounded-xl text-[10px] font-black rotate-[-10deg] uppercase tracking-tighter">نفذ من المخزن</span>
-                    </div>
-                  )}
-                </div>
 
-                <div className="space-y-4">
-                  <div className="flex justify-between items-start">
-                    <h3 className="font-black text-sm text-slate-900 dark:text-white line-clamp-1 flex-1" title={p.name}>{p.name}</h3>
-                    <span className="text-[10px] font-bold text-slate-400 bg-slate-50 dark:bg-slate-800 px-2 py-0.5 rounded-lg mr-2">#{p.code}</span>
-                  </div>
-                  
-                  <div className="flex justify-between items-end border-t border-slate-50 dark:border-white/5 pt-4">
-                    <div>
-                      <p className="text-[10px] font-black text-slate-400 mb-1 uppercase tracking-widest">السعر النهائي</p>
-                      <p className="text-xl font-black text-primary tracking-tight leading-none">{formatCurrency(p.sellingPrice)}</p>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-start">
+                      <h3 className="font-black text-sm text-slate-900 dark:text-white line-clamp-1 flex-1" title={p.name}>{p.name}</h3>
+                      <span className="text-[10px] font-bold text-slate-400 bg-slate-50 dark:bg-slate-800 px-2 py-0.5 rounded-lg mr-2">#{p.code}</span>
                     </div>
-                    <div className="text-left">
-                      <p className="text-[10px] font-black text-slate-400 mb-1 uppercase tracking-widest">
-                        {p.type === 'service' ? 'الحالة العامة' : 'المخزون المتاح'}
-                      </p>
-                      <span className={cn(
-                        "px-3 py-1 rounded-lg text-[10px] font-black",
-                        p.type === 'service' 
-                          ? "bg-indigo-500/10 text-indigo-500" 
-                          : (p.quantity + (p.backroomQuantity || 0)) > 5 ? "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300" : "bg-rose-500/10 text-rose-500"
-                      )}>
-                        {p.type === 'service' ? 'خدمة مفعّلة' : `${p.quantity + (p.backroomQuantity || 0)} قطعة`}
-                      </span>
-                    </div>
-                  </div>
-
-                  {p.type === 'product' && p.backroomQuantity > 0 && (
-                    <div className="bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-2xl flex items-center justify-between border border-dashed border-slate-200 dark:border-white/5">
+                    
+                    <div className="flex justify-between items-end border-t border-slate-50 dark:border-white/5 pt-4">
                       <div>
-                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">مخزن الاستوك (Stock)</p>
-                         <p className="text-xs font-black text-indigo-500 leading-none">{p.backroomQuantity} قطعة</p>
+                        <p className="text-[10px] font-black text-slate-400 mb-1 uppercase tracking-widest">السعر النهائي</p>
+                        <p className="text-xl font-black text-primary tracking-tight leading-none">{formatCurrency(p.sellingPrice)}</p>
                       </div>
-                      <button 
-                        onClick={() => {
-                          const amt = prompt(`كم قطعة تريد نقلها للعرض (Available: ${p.backroomQuantity}):`);
-                          if (amt && !isNaN(Number(amt))) {
-                            const n = Math.min(Number(amt), p.backroomQuantity);
-                            if (n <= 0) return;
-                            updateProduct({
-                              ...p,
-                              quantity: p.quantity + n,
-                              backroomQuantity: p.backroomQuantity - n
-                            });
-                          }
-                        }}
-                        className="p-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors shadow-sm"
-                        title="نقل للعرض"
-                      >
-                         <Check size={14} />
-                      </button>
+                      <div className="text-left">
+                        <p className="text-[10px] font-black text-slate-400 mb-1 uppercase tracking-widest">
+                          {p.type === 'service' ? 'الحالة العامة' : 'المخزون المتاح'}
+                        </p>
+                        <span className={cn(
+                          "px-3 py-1 rounded-lg text-[10px] font-black",
+                          p.type === 'service' 
+                            ? "bg-indigo-500/10 text-indigo-500" 
+                            : (p.quantity + (p.backroomQuantity || 0)) > 5 ? "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300" : "bg-rose-500/10 text-rose-500"
+                        )}>
+                          {p.type === 'service' ? 'خدمة مفعّلة' : `${p.quantity + (p.backroomQuantity || 0)} قطعة`}
+                        </span>
+                      </div>
                     </div>
-                  )}
 
-                  {isOwner && (
-                    <div className="pt-4 mt-2 border-t border-slate-50 dark:border-white/5 flex gap-2">
-                      <button 
-                        onClick={() => { setEditingProduct(p); setIsModalOpen(true); }}
-                        className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 hover:bg-primary/10 hover:text-primary transition-all text-[10px] font-black uppercase tracking-wider"
+                    {p.type === 'product' && p.backroomQuantity > 0 && (
+                      <div className="bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-2xl flex items-center justify-between border border-dashed border-slate-200 dark:border-white/5">
+                        <div>
+                           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">مخزن الاستوك (Stock)</p>
+                           <p className="text-xs font-black text-indigo-500 leading-none">{p.backroomQuantity} قطعة</p>
+                        </div>
+                        <button 
+                          onClick={() => {
+                            const amt = prompt(`كم قطعة تريد نقلها للعرض (Available: ${p.backroomQuantity}):`);
+                            if (amt && !isNaN(Number(amt))) {
+                              const n = Math.min(Number(amt), p.backroomQuantity);
+                              if (n <= 0) return;
+                              updateProduct({
+                                ...p,
+                                quantity: p.quantity + n,
+                                backroomQuantity: p.backroomQuantity - n
+                              });
+                            }
+                          }}
+                          className="p-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors shadow-sm"
+                          title="نقل للعرض"
+                        >
+                           <Check size={14} />
+                        </button>
+                      </div>
+                    )}
+
+                    {isOwner && (
+                      <div className="pt-4 mt-2 border-t border-slate-50 dark:border-white/5 flex gap-2">
+                        <button 
+                          onClick={() => { setEditingProduct(p); setIsModalOpen(true); }}
+                          className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 hover:bg-primary/10 hover:text-primary transition-all text-[10px] font-black uppercase tracking-wider"
+                        >
+                          <Edit size={14} /> تعديل
+                        </button>
+                        <button 
+                          onClick={() => setProductToDelete(p)}
+                          className="p-2.5 rounded-xl bg-slate-50 dark:bg-white/5 hover:bg-rose-500/10 hover:text-rose-500 transition-all text-slate-400"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        ) : (
+          <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-white/5 overflow-hidden shadow-sm">
+            <div className="overflow-x-auto custom-scrollbar">
+              <table className="w-full text-right border-collapse min-w-[1000px]">
+                <thead>
+                  <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-white/10">
+                    {isOwner && <th className="p-5 w-16"></th>}
+                    <th className="p-5 text-[10px] font-black uppercase tracking-widest text-slate-400">الصورة</th>
+                    <th className="p-5 text-[10px] font-black uppercase tracking-widest text-slate-400">الاسم / الكود</th>
+                    <th className="p-5 text-[10px] font-black uppercase tracking-widest text-slate-400">القسم</th>
+                    <th className="p-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">المخزون (عرض/مخزن)</th>
+                    <th className="p-5 text-[10px] font-black uppercase tracking-widest text-slate-400">سعر الجملة</th>
+                    <th className="p-5 text-[10px] font-black uppercase tracking-widest text-slate-400">سعر البيع</th>
+                    <th className="p-5 text-[10px] font-black uppercase tracking-widest text-slate-400">الربح (%)</th>
+                    {isOwner && <th className="p-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">الإجراءات</th>}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-white/5">
+                  <AnimatePresence mode="popLayout">
+                    {filteredProducts.map((p) => (
+                      <motion.tr 
+                        key={p.id}
+                        layout
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className={cn(
+                          "group hover:bg-slate-50 dark:hover:bg-white/5 transition-colors",
+                          selectedIds.includes(p.id) && "bg-primary/5 shadow-[inset_4px_0_0_0_#9333ea]"
+                        )}
                       >
-                        <Edit size={14} /> تعديل
-                      </button>
-                      <button 
-                        onClick={() => setProductToDelete(p)}
-                        className="p-2.5 rounded-xl bg-slate-50 dark:bg-white/5 hover:bg-rose-500/10 hover:text-rose-500 transition-all text-slate-400"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
+                        {isOwner && (
+                          <td className="p-5">
+                            <div 
+                              onClick={() => toggleSelectOne(p.id)}
+                              className={cn(
+                                "w-6 h-6 rounded-full border-2 flex items-center justify-center cursor-pointer transition-all",
+                                selectedIds.includes(p.id) ? "bg-primary border-primary text-white" : "border-slate-200 dark:border-white/10"
+                              )}
+                            >
+                              {selectedIds.includes(p.id) && <Check size={14} strokeWidth={3} />}
+                            </div>
+                          </td>
+                        )}
+                        <td className="p-5">
+                          <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 overflow-hidden flex items-center justify-center border border-slate-200 dark:border-white/5">
+                            {p.imageUrl ? <img src={p.imageUrl} className="w-full h-full object-cover" /> : <ImageIcon size={20} className="text-slate-300" />}
+                          </div>
+                        </td>
+                        <td className="p-5">
+                          <div className="flex flex-col">
+                            <span className="font-black text-sm text-slate-800 dark:text-white">{p.name}</span>
+                            <span className="text-[10px] font-bold text-slate-400 tracking-wider">#{p.code}</span>
+                          </div>
+                        </td>
+                        <td className="p-5">
+                          <span className="text-[10px] font-black uppercase px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500">
+                             {CATEGORIES.find(c => c.id === p.category)?.label || p.category}
+                          </span>
+                        </td>
+                        <td className="p-5 text-center">
+                          <div className="flex flex-col items-center">
+                            <span className={cn(
+                              "text-sm font-black",
+                              (p.quantity + (p.backroomQuantity || 0)) <= 5 ? "text-rose-500" : "text-slate-700 dark:text-slate-300"
+                            )}>
+                              {p.type === 'service' ? 'خدمة' : `${p.quantity} / ${p.backroomQuantity}`}
+                            </span>
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">إجمالي: {p.quantity + (p.backroomQuantity || 0)}</span>
+                          </div>
+                        </td>
+                        <td className="p-5 font-black text-sm text-emerald-600">{formatCurrency(p.wholesalePrice)}</td>
+                        <td className="p-5 font-black text-sm text-primary">{formatCurrency(p.sellingPrice)}</td>
+                        <td className="p-5">
+                           {p.sellingPrice > p.wholesalePrice ? (
+                             <span className="text-[10px] font-black text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-lg">
+                               %{Math.round(((p.sellingPrice - p.wholesalePrice) / p.sellingPrice) * 100)} ربح
+                             </span>
+                           ) : <span className="text-slate-300">--</span>}
+                        </td>
+                        {isOwner && (
+                          <td className="p-5">
+                            <div className="flex items-center justify-center gap-2">
+                              <button 
+                                onClick={() => { setEditingProduct(p); setIsModalOpen(true); }}
+                                className="p-2.5 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-primary/10 hover:text-primary transition-all text-slate-400"
+                              >
+                                <Edit size={16} />
+                              </button>
+                              <button 
+                                onClick={() => setProductToDelete(p)}
+                                className="p-2.5 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-rose-500/10 hover:text-rose-500 transition-all text-slate-400"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                              <button 
+                                onClick={() => { setSelectedProduct(p); setIsQuickViewOpen(true); }}
+                                className="p-2.5 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 transition-all text-slate-400"
+                              >
+                                <ChevronRight size={16} />
+                              </button>
+                            </div>
+                          </td>
+                        )}
+                      </motion.tr>
+                    ))}
+                  </AnimatePresence>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )
       ) : (
         <motion.div 
           initial={{ opacity: 0 }}
