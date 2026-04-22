@@ -181,7 +181,7 @@ export default function App() {
       if (e.ctrlKey || e.metaKey) {
         if (e.key === 'f') { e.preventDefault(); (document.querySelector('header input') as HTMLInputElement)?.focus(); }
         if (e.key === 's') { e.preventDefault(); setActiveTab('sales'); }
-        if (e.key === 'i') { e.preventDefault(); setActiveTab('inventory'); }
+        if (e.key === 'i' && currentUser?.role === 'owner') { e.preventDefault(); setActiveTab('inventory'); }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -200,6 +200,11 @@ export default function App() {
   if (!currentUser) return <Login />;
 
   const renderContent = () => {
+    // Role based access restriction
+    if (currentUser?.role === 'employee' && ['inventory', 'audit', 'reports'].includes(activeTab)) {
+      return <Dashboard />;
+    }
+
     switch (activeTab) {
       case 'dashboard': return <Dashboard />;
       case 'inventory': return <Inventory />;

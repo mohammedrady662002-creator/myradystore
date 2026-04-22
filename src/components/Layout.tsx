@@ -54,8 +54,8 @@ export default function Layout({ children, activeTab, setActiveTab }: {
 
   const filteredNavItems = NAV_ITEMS.filter(item => {
     if (currentUser?.role === 'owner') return true;
-    // Employee sees Inventory, Sales, Finance, and Customers
-    return ['inventory', 'sales', 'finance', 'customers'].includes(item.id);
+    // Employee sees Sales, Finance, and Customers (Inventory removed)
+    return ['sales', 'finance', 'customers'].includes(item.id);
   });
 
   return (
