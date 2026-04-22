@@ -566,7 +566,7 @@ export default function Sales() {
             initial={{ opacity: 0, scale: 0.8, y: 100 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: 100 }}
-            className="fixed bottom-12 left-1/2 -translate-x-1/2 bg-emerald-500 text-white px-10 py-8 rounded-[3rem] shadow-[0_30px_60px_-12px_rgba(16,185,129,0.45)] border-4 border-white/20 flex flex-col items-center gap-4 z-[300] min-w-[320px]"
+            className="fixed bottom-28 lg:bottom-12 left-1/2 -translate-x-1/2 bg-emerald-500 text-white px-10 py-8 rounded-[3rem] shadow-[0_30px_60px_-12px_rgba(16,185,129,0.45)] border-4 border-white/20 flex flex-col items-center gap-4 z-[500] min-w-[320px]"
           >
             <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center border-2 border-white/10">
               <CheckCircle2 size={48} className="text-white" />
