@@ -1,0 +1,6 @@
+{
+  "appId": "com.rady.store",
+  "appName": "راضي ستور",
+  "webDir": "dist",
+  "bundledWebRuntime": false
+}
