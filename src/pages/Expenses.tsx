@@ -322,20 +322,19 @@ export default function Expenses() {
       {/* Add Modal */}
       <AnimatePresence>
         {showAddModal && (
-          <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowAddModal(false)} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+          <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 overflow-y-auto bg-black/60 backdrop-blur-sm">
             <motion.div 
               initial={{ opacity: 0, scale: 0.95, y: 30 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 30 }}
-              className="relative bg-white dark:bg-slate-900 w-full max-w-lg rounded-[2.5rem] shadow-2xl p-10 overflow-hidden"
+              className="relative bg-white dark:bg-slate-900 w-full max-w-lg rounded-[2.5rem] shadow-2xl p-10 overflow-hidden text-right my-auto"
             >
               <div className="flex justify-between items-center mb-8">
-                <div>
-                  <h3 className="text-2xl font-black">إضافة جديد</h3>
-                  <p className="text-xs text-slate-400 font-bold uppercase mt-1">تسجيل مصروفات أو تالف بضاعة</p>
+                <button onClick={() => setShowAddModal(false)} className="p-2 text-slate-400 hover:text-rose-500 transition-colors order-first"><X size={24} /></button>
+                <div className="text-right">
+                  <h3 className="text-2xl font-black text-slate-800 dark:text-white">إضافة جديـد</h3>
+                  <p className="text-xs text-slate-400 font-bold uppercase mt-1 tracking-widest">تسجيل مصروفات أو تالف بضاعة</p>
                 </div>
-                <button onClick={() => setShowAddModal(false)} className="p-2 text-slate-400 hover:text-rose-500 transition-colors"><X size={24} /></button>
               </div>
 
               <form onSubmit={handleAddSubmit} className="space-y-6">

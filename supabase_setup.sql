@@ -95,3 +95,24 @@ CREATE POLICY "Public full access" ON sales FOR ALL USING (true) WITH CHECK (tru
 CREATE POLICY "Public full access" ON transactions FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Public full access" ON customers FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Public full access" ON app_settings FOR ALL USING (true) WITH CHECK (true);
+
+-- 6. Expenses Table
+CREATE TABLE expenses (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  amount NUMERIC DEFAULT 0,
+  category TEXT,
+  type TEXT DEFAULT 'expense', -- 'expense' or 'waste'
+  date TIMESTAMPTZ DEFAULT NOW(),
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Enable Realtime for expenses
+ALTER PUBLICATION supabase_realtime ADD TABLE expenses;
+
+-- Enable RLS
+ALTER TABLE expenses ENABLE ROW LEVEL SECURITY;
+
+-- Policy
+CREATE POLICY "Public full access" ON expenses FOR ALL USING (true) WITH CHECK (true);

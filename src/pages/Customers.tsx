@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
@@ -37,6 +37,18 @@ export default function Customers() {
   const [transactionNote, setTransactionNote] = useState('');
   const [proofImageUrl, setProofImageUrl] = useState('');
   const isOwner = currentUser?.role === 'owner';
+
+  // Lock scroll when any modal is open
+  useEffect(() => {
+    if (selectedCustomer || showHistoryCustomer || customerToDelete || isModalOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [selectedCustomer, showHistoryCustomer, customerToDelete, isModalOpen]);
 
   const filteredCustomers = useMemo(() => {
     return customers.filter(c => 
@@ -356,77 +368,108 @@ export default function Customers() {
       {/* Pay Debt Modal */}
       <AnimatePresence>
         {selectedCustomer && createPortal(
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelectedCustomer(null)} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 italic-none">
             <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }} 
+              onClick={() => setSelectedCustomer(null)} 
+              className="absolute inset-0 bg-black/90 backdrop-blur-md" 
+            />
+            
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.8, y: 50 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative bg-white dark:bg-slate-900 w-full max-w-lg rounded-[3rem] shadow-2xl p-10 overflow-hidden text-right"
+              exit={{ opacity: 0, scale: 0.8, y: 50 }}
+              className="relative bg-white dark:bg-slate-900 w-full max-w-lg rounded-[3.5rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] p-8 sm:p-12 overflow-hidden text-right z-50 border border-white/10"
             >
+              <button 
+                onClick={() => setSelectedCustomer(null)}
+                className="absolute top-8 left-8 p-2 rounded-2xl bg-slate-100 dark:bg-white/5 text-slate-400 hover:text-rose-500 transition-all z-20"
+              >
+                <X size={24} />
+              </button>
+
               <div className="mb-10 text-center">
                   <div className={cn(
-                    "w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 border-2",
+                    "w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 border-4 shadow-lg",
                     actionType === 'pay' ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" : "bg-rose-500/10 text-rose-500 border-rose-500/20"
                   )}>
-                      {actionType === 'pay' ? <ArrowDownLeft size={32} /> : <ArrowUpRight size={32} />}
+                      {actionType === 'pay' ? <ArrowDownLeft size={42} /> : <ArrowUpRight size={42} />}
                   </div>
-                  <h3 className="text-2xl font-black text-slate-800 dark:text-white">
-                    {actionType === 'pay' ? 'تحصيل مديونية' : 'إضافة مديونية جديدة'}
+                  <h3 className="text-3xl font-black text-slate-800 dark:text-white tracking-tight">
+                    {actionType === 'pay' ? 'تحصيل مديونية' : 'زيادة مديونية جديدة'}
                   </h3>
-                  <p className="text-slate-400 font-medium text-sm mt-2"> العميل: <span className="text-primary font-black">{selectedCustomer.name}</span></p>
-                  <p className="text-slate-400 font-bold text-xs mt-1 italic">
-                    {selectedCustomer.totalDebt >= 0 ? "إجمالي الدين الحالي:" : "إجمالي المديونية لي (علي المحل):"} {formatCurrency(Math.abs(selectedCustomer.totalDebt))}
-                  </p>
+                  <div className="mt-4 space-y-2">
+                    <div className="inline-block px-4 py-2 rounded-2xl bg-primary/5 border border-primary/10">
+                      <p className="text-slate-500 dark:text-slate-400 font-bold text-sm"> العميل: <span className="text-primary font-black text-lg">{selectedCustomer.name}</span></p>
+                    </div>
+                    <p className="text-slate-400 font-black text-xs uppercase tracking-widest mt-2">
+                      {selectedCustomer.totalDebt >= 0 ? "إجمالي الدين الحالي:" : "المحل مديون له:"} {formatCurrency(Math.abs(selectedCustomer.totalDebt))}
+                    </p>
+                  </div>
               </div>
 
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">المبلغ (ج.م)</label>
-                  <input 
-                    type="number" 
-                    value={payAmount || ''}
-                    onChange={(e) => setPayAmount(Number(e.target.value))}
-                    className={cn(
-                      "w-full bg-slate-50 dark:bg-slate-800 border-none rounded-2xl p-6 font-black text-3xl outline-none text-center focus:ring-4 transition-all md:text-4xl",
-                      actionType === 'pay' ? "text-emerald-500 focus:ring-emerald-500/10" : "text-rose-500 focus:ring-rose-500/10"
-                    )}
-                    placeholder="0.00"
-                  />
+              <div className="space-y-8">
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] block pr-4">المبلغ بالجنيه المصري</label>
+                  <div className="relative">
+                    <input 
+                      type="number" 
+                      autoFocus
+                      value={payAmount || ''}
+                      onChange={(e) => setPayAmount(Number(e.target.value))}
+                      className={cn(
+                        "w-full bg-slate-50 dark:bg-slate-800/80 border-2 border-transparent rounded-[2.5rem] p-8 font-black text-5xl outline-none text-center transition-all shadow-inner",
+                        actionType === 'pay' ? "text-emerald-500 focus:border-emerald-500/30" : "text-rose-500 focus:border-rose-500/30"
+                      )}
+                      placeholder="0.00"
+                    />
+                    <div className="absolute left-8 top-1/2 -translate-y-1/2 text-slate-300 font-black text-sm">ج.م</div>
+                  </div>
                   {actionType === 'pay' && payAmount > selectedCustomer.totalDebt && (
-                    <p className="text-[10px] font-black text-rose-500 mt-2">⚠️ المبلغ المدخل أكبر من مديونية العميل</p>
+                    <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-500 text-[10px] font-black text-center animate-bounce">
+                      ⚠️ المبلغ المدخل أكبر من مديونية العميل
+                    </div>
                   )}
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">ملاحظات إضافية (اختياري)</label>
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] block pr-4">ملاحظات توضيحية</label>
                   <textarea 
                     value={transactionNote}
                     onChange={(e) => setTransactionNote(e.target.value)}
-                    className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-2xl p-4 font-bold text-sm outline-none focus:ring-4 focus:ring-primary/10 transition-all h-24 max-h-32"
-                    placeholder="اكتب أي ملاحظات تخص هذه الحركة هنا..."
+                    className="w-full bg-slate-50 dark:bg-slate-800/80 border-2 border-transparent rounded-[2rem] p-6 font-bold text-sm outline-none focus:border-primary/20 transition-all h-28 resize-none shadow-inner"
+                    placeholder="اكتب أي ملاحظات هنا..."
                   />
                 </div>
 
                 <ImageUpload 
-                  label="صورة التوثيق (اختياري)"
+                  label="إرفاق صورة (اختياري)"
                   value={proofImageUrl}
                   onUpload={setProofImageUrl}
                 />
 
-                <button 
-                  onClick={handlePayDebt}
-                  disabled={payAmount <= 0}
-                  className={cn(
-                    "w-full py-6 rounded-3xl font-black shadow-xl transition-all transform active:scale-95 flex items-center justify-center gap-3 text-lg disabled:opacity-50",
-                    actionType === 'pay' ? "bg-emerald-500 text-white shadow-emerald-500/20" : "bg-rose-500 text-white shadow-rose-500/20"
-                  )}
-                >
-                  <Check size={20} />
-                  {actionType === 'pay' ? 'تأكيد التحصيل' : 'زيادة المديونية'}
-                </button>
-                
-                <button onClick={() => setSelectedCustomer(null)} className="w-full py-4 text-slate-400 font-bold text-sm tracking-widest uppercase">إلغاء العملية</button>
+                <div className="flex flex-col gap-4 pt-6">
+                  <button 
+                    onClick={handlePayDebt}
+                    disabled={payAmount <= 0}
+                    className={cn(
+                      "group w-full py-8 rounded-[2.5rem] font-black shadow-2xl transition-all transform active:scale-95 flex items-center justify-center gap-4 text-xl disabled:opacity-50 disabled:grayscale",
+                      actionType === 'pay' ? "bg-emerald-500 text-white shadow-emerald-500/40" : "bg-rose-500 text-white shadow-rose-500/40"
+                    )}
+                  >
+                    <Check size={32} className="group-hover:scale-110 transition-transform" />
+                    <span>{actionType === 'pay' ? 'إتمام التحصيل' : 'تأكيد الزيادة'}</span>
+                  </button>
+                  
+                  <button 
+                    onClick={() => setSelectedCustomer(null)} 
+                    className="w-full py-2 text-slate-400 font-bold text-xs uppercase tracking-widest hover:text-rose-500 transition-colors"
+                  >
+                    إلغاء العملية والعودة
+                  </button>
+                </div>
               </div>
             </motion.div>
           </div>,
@@ -436,14 +479,13 @@ export default function Customers() {
 
       {/* Customer History Modal */}
       <AnimatePresence>
-        {showHistoryCustomer && createPortal(
-          <div className="fixed inset-0 z-[150] flex items-center justify-center p-4">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowHistoryCustomer(null)} className="absolute inset-0 bg-black/70 backdrop-blur-md" />
+        {showHistoryCustomer && (
+          <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 overflow-y-auto bg-black/70 backdrop-blur-md">
             <motion.div 
               initial={{ opacity: 0, scale: 0.95, y: 30 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 30 }}
-              className="relative bg-white dark:bg-slate-900 w-full max-w-2xl h-[85vh] rounded-[3rem] shadow-2xl flex flex-col overflow-hidden text-right"
+              className="relative bg-white dark:bg-slate-900 w-full max-w-2xl h-[85vh] rounded-[3rem] shadow-2xl flex flex-col overflow-hidden text-right my-auto"
             >
               <div className="p-8 border-b border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-slate-800/20">
                 <div className="flex justify-between items-center">
@@ -559,27 +601,19 @@ export default function Customers() {
                 </div>
               </div>
             </motion.div>
-          </div>,
-          document.body
+          </div>
         )}
       </AnimatePresence>
 
       {/* Delete Confirmation Modal */}
       <AnimatePresence>
-        {customerToDelete && createPortal(
-          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0 }} 
-              animate={{ opacity: 1 }} 
-              exit={{ opacity: 0 }} 
-              onClick={() => setCustomerToDelete(null)} 
-              className="absolute inset-0 bg-black/80 backdrop-blur-sm" 
-            />
+        {customerToDelete && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 overflow-y-auto bg-black/80 backdrop-blur-sm">
             <motion.div 
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-[2.5rem] shadow-2xl p-8 overflow-hidden text-right"
+              className="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-[2.5rem] shadow-2xl p-8 overflow-hidden text-right my-auto"
             >
               <div className="mb-6 text-center">
                 <div className="w-20 h-20 bg-rose-500/10 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-4 border border-rose-500/20">
@@ -612,22 +646,26 @@ export default function Customers() {
                 </button>
               </div>
             </motion.div>
-          </div>,
-          document.body
+          </div>
         )}
       </AnimatePresence>
 
       {/* Add Customer Modal */}
       <AnimatePresence>
-        {isModalOpen && createPortal(
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsModalOpen(false)} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+        {isModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 overflow-y-auto bg-black/60 backdrop-blur-sm">
             <motion.div 
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative bg-white dark:bg-slate-900 w-full max-w-lg rounded-[3rem] shadow-2xl p-10 overflow-hidden text-right"
+              className="relative bg-white dark:bg-slate-900 w-full max-w-lg rounded-[3rem] shadow-2xl p-10 overflow-hidden text-right my-auto"
             >
+              <button 
+                onClick={() => setIsModalOpen(false)}
+                className="absolute top-6 left-6 text-slate-400 hover:text-rose-500 transition-colors"
+              >
+                <X size={24} />
+              </button>
               <div className="mb-10 text-center">
                   <div className="w-20 h-20 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-4">
                       <Plus size={32} />
@@ -638,8 +676,7 @@ export default function Customers() {
 
               <AddCustomerForm onSave={() => setIsModalOpen(false)} onClose={() => setIsModalOpen(false)} />
             </motion.div>
-          </div>,
-          document.body
+          </div>
         )}
       </AnimatePresence>
     </div>
