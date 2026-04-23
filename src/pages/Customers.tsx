@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Users, 
@@ -354,7 +355,7 @@ export default function Customers() {
 
       {/* Pay Debt Modal */}
       <AnimatePresence>
-        {selectedCustomer && (
+        {selectedCustomer && createPortal(
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelectedCustomer(null)} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
             <motion.div 
@@ -428,13 +429,14 @@ export default function Customers() {
                 <button onClick={() => setSelectedCustomer(null)} className="w-full py-4 text-slate-400 font-bold text-sm tracking-widest uppercase">إلغاء العملية</button>
               </div>
             </motion.div>
-          </div>
+          </div>,
+          document.body
         )}
       </AnimatePresence>
 
       {/* Customer History Modal */}
       <AnimatePresence>
-        {showHistoryCustomer && (
+        {showHistoryCustomer && createPortal(
           <div className="fixed inset-0 z-[150] flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowHistoryCustomer(null)} className="absolute inset-0 bg-black/70 backdrop-blur-md" />
             <motion.div 
@@ -557,13 +559,14 @@ export default function Customers() {
                 </div>
               </div>
             </motion.div>
-          </div>
+          </div>,
+          document.body
         )}
       </AnimatePresence>
 
       {/* Delete Confirmation Modal */}
       <AnimatePresence>
-        {customerToDelete && (
+        {customerToDelete && createPortal(
           <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
             <motion.div 
               initial={{ opacity: 0 }} 
@@ -609,13 +612,14 @@ export default function Customers() {
                 </button>
               </div>
             </motion.div>
-          </div>
+          </div>,
+          document.body
         )}
       </AnimatePresence>
 
       {/* Add Customer Modal */}
       <AnimatePresence>
-        {isModalOpen && (
+        {isModalOpen && createPortal(
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsModalOpen(false)} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
             <motion.div 
@@ -634,7 +638,8 @@ export default function Customers() {
 
               <AddCustomerForm onSave={() => setIsModalOpen(false)} onClose={() => setIsModalOpen(false)} />
             </motion.div>
-          </div>
+          </div>,
+          document.body
         )}
       </AnimatePresence>
     </div>
