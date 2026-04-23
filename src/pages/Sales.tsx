@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Plus, 
@@ -563,12 +564,12 @@ export default function Sales() {
 
       {/* Success Success Popover */}
       <AnimatePresence>
-        {success && (
+        {success && createPortal(
           <motion.div 
             initial={{ opacity: 0, scale: 0.8, y: 100 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: 100 }}
-            className="fixed bottom-28 lg:bottom-12 left-1/2 -translate-x-1/2 bg-emerald-500 text-white px-10 py-8 rounded-[3rem] shadow-[0_30px_60px_-12px_rgba(16,185,129,0.45)] border-4 border-white/20 flex flex-col items-center gap-4 z-[500] min-w-[320px]"
+            className="fixed bottom-28 lg:bottom-12 left-1/2 -translate-x-1/2 bg-emerald-500 text-white px-10 py-8 rounded-[3rem] shadow-[0_30px_60px_-12px_rgba(16,185,129,0.45)] border-4 border-white/20 flex flex-col items-center gap-4 z-[9999] min-w-[320px]"
           >
             <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center border-2 border-white/10">
               <CheckCircle2 size={48} className="text-white" />
@@ -580,7 +581,8 @@ export default function Sales() {
             <div className="w-full h-1 bg-white/20 rounded-full overflow-hidden mt-2">
                <motion.div initial={{ width: '100%' }} animate={{ width: 0 }} transition={{ duration: 3 }} className="h-full bg-white" />
             </div>
-          </motion.div>
+          </motion.div>,
+          document.body
         )}
       </AnimatePresence>
 
@@ -730,14 +732,14 @@ function EditSaleModal({ sale, onClose }: { sale: Sale, onClose: () => void }) {
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
       <motion.div 
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="relative bg-white dark:bg-slate-900 w-full max-w-lg rounded-[3rem] shadow-2xl p-10 overflow-hidden text-right"
+        className="relative bg-white dark:bg-slate-900 w-full max-w-lg rounded-[3rem] shadow-2xl p-10 overflow-hidden text-right z-50 border border-white/10"
       >
         <div className="mb-10 flex justify-between items-center">
             <h3 className="text-2xl font-black">تعديل عملية بيع</h3>
@@ -801,6 +803,7 @@ function EditSaleModal({ sale, onClose }: { sale: Sale, onClose: () => void }) {
           </button>
         </div>
       </motion.div>
-    </div>
+    </div>,
+    document.body
   );
 }

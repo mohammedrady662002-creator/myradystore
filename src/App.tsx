@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useStore, UserRole } from './lib/store';
 import { cn, sendWhatsAppOTP } from './lib/utils';
 import Layout from './components/Layout';
@@ -241,14 +242,14 @@ export default function App() {
 
         {/* Global Modal Overlay for Settings/Backup */}
         <AnimatePresence>
-          {showSettings && (
-            <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+          {showSettings && createPortal(
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowSettings(false)} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
               <motion.div 
                 initial={{ opacity: 0, scale: 0.95, y: 30 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 30 }}
-                className="relative bg-white dark:bg-slate-900 w-full max-w-lg rounded-[2.5rem] shadow-2xl p-10 overflow-hidden"
+                className="relative bg-white dark:bg-slate-900 w-full max-w-lg rounded-[2.5rem] shadow-2xl p-10 overflow-hidden z-50 border border-white/10"
               >
                 <div className="flex justify-between items-center mb-8">
                   <div>
@@ -368,19 +369,20 @@ export default function App() {
                   </div>
                 </div>
               </motion.div>
-            </div>
+            </div>,
+            document.body
           )}
         </AnimatePresence>
 
         {/* Global Toast */}
         <AnimatePresence>
-          {toast && (
+          {toast && createPortal(
             <motion.div 
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -50 }}
               className={cn(
-                "fixed top-24 left-6 z-[300] px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 border backdrop-blur-xl",
+                "fixed top-24 left-6 z-[9999] px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 border backdrop-blur-xl",
                 toast.type === 'success' ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500" :
                 toast.type === 'error' ? "bg-rose-500/10 border-rose-500/20 text-rose-500" :
                 "bg-blue-500/10 border-blue-500/20 text-blue-500"
@@ -388,7 +390,8 @@ export default function App() {
             >
               <CheckCircle2 size={20} />
               <span className="font-bold text-sm">{toast.message}</span>
-            </motion.div>
+            </motion.div>,
+            document.body
           )}
         </AnimatePresence>
 

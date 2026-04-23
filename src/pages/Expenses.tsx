@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Banknote, 
@@ -35,6 +36,18 @@ export default function Expenses() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState<ExpenseCategory | 'all'>('all');
   const [showAddModal, setShowAddModal] = useState(false);
+  
+  // Lock scroll when modal is open
+  useEffect(() => {
+    if (showAddModal) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [showAddModal]);
 
   // Stats
   const totalExpenses = useMemo(() => 
@@ -321,13 +334,20 @@ export default function Expenses() {
 
       {/* Add Modal */}
       <AnimatePresence>
-        {showAddModal && (
-          <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 overflow-y-auto bg-black/60 backdrop-blur-sm">
+        {showAddModal && createPortal(
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }} 
+              onClick={() => setShowAddModal(false)} 
+              className="absolute inset-0 bg-black/80 backdrop-blur-md" 
+            />
             <motion.div 
               initial={{ opacity: 0, scale: 0.95, y: 30 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 30 }}
-              className="relative bg-white dark:bg-slate-900 w-full max-w-lg rounded-[2.5rem] shadow-2xl p-10 overflow-hidden text-right my-auto"
+              className="relative bg-white dark:bg-slate-900 w-full max-w-lg rounded-[2.5rem] shadow-2xl p-10 overflow-hidden text-right z-50 border border-white/10"
             >
               <div className="flex justify-between items-center mb-8">
                 <button onClick={() => setShowAddModal(false)} className="p-2 text-slate-400 hover:text-rose-500 transition-colors order-first"><X size={24} /></button>
@@ -415,7 +435,8 @@ export default function Expenses() {
                 </button>
               </form>
             </motion.div>
-          </div>
+          </div>,
+          document.body
         )}
       </AnimatePresence>
     </div>
