@@ -73,9 +73,9 @@ app_path=$0
 WRAPPER_DIR="gradle/wrapper"
 WRAPPER_JAR="$WRAPPER_DIR/gradle-wrapper.jar"
 if [ ! -f "$WRAPPER_JAR" ] || [ ! -s "$WRAPPER_JAR" ]; then
-    echo "Gradle wrapper jar missing or corrupt. Downloading fresh copy from Capacitor source..."
+    echo "Gradle wrapper jar missing or corrupt. Downloading fresh copy from official Gradle repo..."
     mkdir -p "$WRAPPER_DIR"
-    curl -L "https://github.com/ionic-team/capacitor-android-template/raw/main/gradle/wrapper/gradle-wrapper.jar" -o "$WRAPPER_JAR"
+    curl -L "https://raw.githubusercontent.com/gradle/gradle/v8.2.0/gradle/wrapper/gradle-wrapper.jar" -o "$WRAPPER_JAR"
 fi
 # -----------------------------------------------------------------
 
