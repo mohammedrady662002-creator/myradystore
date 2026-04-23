@@ -19,7 +19,8 @@ import {
   CloudCheck,
   CloudOff,
   CloudUpload,
-  RotateCcw
+  RotateCcw,
+  Banknote
 } from 'lucide-react';
 import { useStore } from '../lib/store';
 import { cn } from '../lib/utils';
@@ -36,6 +37,7 @@ const NAV_ITEMS: NavItem[] = [
   { id: 'sales', label: 'المبيعات', icon: ShoppingCart },
   { id: 'finance', label: 'الماليات', icon: Wallet },
   { id: 'customers', label: 'العملاء والديون', icon: UserIcon },
+  { id: 'expenses', label: 'المصروفات', icon: Banknote },
   { id: 'audit', label: 'الجرد والتصفية', icon: Calculator },
   { id: 'reports', label: 'التقارير', icon: BarChart3 },
 ];

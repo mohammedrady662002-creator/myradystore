@@ -71,6 +71,18 @@ export interface Sale {
   customerPhone?: string;
 }
 
+export type ExpenseCategory = 'rent' | 'electricity' | 'salary' | 'internet' | 'maintenance' | 'waste' | 'other';
+
+export interface Expense {
+  id: string;
+  title: string;
+  amount: number;
+  category: ExpenseCategory;
+  date: string;
+  notes?: string;
+  type: 'expense' | 'waste'; // waste = هالك
+}
+
 export interface Customer {
   id: string;
   name: string;
@@ -100,6 +112,7 @@ export interface StoreState {
   sales: Sale[];
   transactions: BankTransaction[];
   customers: Customer[];
+  expenses: Expense[];
   isDarkMode: boolean;
   ownerPin: string;
   employeePin: string;
@@ -110,6 +123,7 @@ export interface StoreState {
     sales: boolean;
     transactions: boolean;
     customers: boolean;
+    expenses: boolean;
   };
   
   // Auth
@@ -139,12 +153,17 @@ export interface StoreState {
   updateCustomer: (customer: Customer) => Promise<void>;
   deleteCustomer: (id: string) => Promise<void>;
   
+  // Expenses
+  addExpense: (expense: Expense) => Promise<void>;
+  updateExpense: (expense: Expense) => Promise<void>;
+  deleteExpense: (id: string) => Promise<void>;
+  
   // Bulk Actions
   bulkDeleteProducts: (ids: string[]) => Promise<void>;
   migrateExistingProductsToProduct: () => Promise<void>;
   
   // Data Import
-  importBulkData: (data: { products?: any[], sales?: any[], transactions?: any[], customers?: any[] }) => Promise<void>;
+  importBulkData: (data: { products?: any[], sales?: any[], transactions?: any[], customers?: any[], expenses?: any[] }) => Promise<void>;
   
   // Data Reset
   resetData: () => Promise<void>;
@@ -161,6 +180,7 @@ export const useStore = create<StoreState>()(
       sales: [],
       transactions: [],
       customers: [],
+      expenses: [],
       isDarkMode: true,
       ownerPin: '2002',
       employeePin: '0000',
@@ -171,6 +191,7 @@ export const useStore = create<StoreState>()(
         sales: false,
         transactions: false,
         customers: false,
+        expenses: false,
       },
 
       setCurrentUser: (user) => set({ currentUser: user }),
@@ -242,6 +263,7 @@ export const useStore = create<StoreState>()(
               supabase.from('sales').select('*'),
               supabase.from('transactions').select('*'),
               supabase.from('customers').select('*'),
+              supabase.from('expenses').select('*'),
               supabase.from('app_settings').select('*').eq('id', 'auth_settings').maybeSingle()
             ];
 
@@ -254,9 +276,9 @@ export const useStore = create<StoreState>()(
               }
             });
 
-            const [pRes, sRes, tRes, cRes, stRes] = results;
+            const [pRes, sRes, tRes, cRes, eRes, stRes] = results;
 
-            if (pRes.error || sRes.error || tRes.error || cRes.error) {
+            if (pRes.error || sRes.error || tRes.error || cRes.error || eRes.error) {
               console.warn('Some tables failed to sync, using partial cloud data');
             }
 
@@ -272,7 +294,8 @@ export const useStore = create<StoreState>()(
               sales: (sRes.data || []).map(snakeToCamel),
               transactions: (tRes.data || []).map(snakeToCamel),
               customers: (cRes.data || []).map(snakeToCamel),
-              syncStatus: { products: true, sales: true, transactions: true, customers: true },
+              expenses: (eRes.data || []).map(snakeToCamel),
+              syncStatus: { products: true, sales: true, transactions: true, customers: true, expenses: true },
               syncError: null,
               isInitialized: true
             });
@@ -286,7 +309,7 @@ export const useStore = create<StoreState>()(
             set({ 
               syncError: msg, 
               isInitialized: true,
-              syncStatus: { products: true, sales: true, transactions: true, customers: true } 
+              syncStatus: { products: true, sales: true, transactions: true, customers: true, expenses: true } 
             });
             initialized = true;
           }
@@ -300,7 +323,7 @@ export const useStore = create<StoreState>()(
             console.warn('⚠️ Initialization timed out, proceeding with local data');
             set({ 
               isInitialized: true,
-              syncStatus: { products: true, sales: true, transactions: true, customers: true }
+              syncStatus: { products: true, sales: true, transactions: true, customers: true, expenses: true }
             });
           }
         }, 8000); // Increased to 8s for slower mobile connections
@@ -334,11 +357,19 @@ export const useStore = create<StoreState>()(
             });
           }).subscribe();
 
+        const expensesChannel = supabase.channel('expenses-all')
+          .on('postgres_changes', { event: '*', table: 'expenses', schema: 'public' }, () => {
+            supabase.from('expenses').select('*').then(({ data }) => {
+              if (data) set({ expenses: data.map(snakeToCamel) });
+            });
+          }).subscribe();
+
         return () => {
           productsChannel.unsubscribe();
           salesChannel.unsubscribe();
           txChannel.unsubscribe();
           customersChannel.unsubscribe();
+          expensesChannel.unsubscribe();
         };
       },
       
@@ -411,6 +442,21 @@ export const useStore = create<StoreState>()(
         if (error) throw error;
       },
 
+      addExpense: async (expense) => {
+        const { error } = await supabase.from('expenses').insert(camelToSnake(expense));
+        if (error) throw error;
+      },
+      
+      updateExpense: async (expense) => {
+        const { error } = await supabase.from('expenses').update(camelToSnake(expense)).eq('id', expense.id);
+        if (error) throw error;
+      },
+      
+      deleteExpense: async (id) => {
+        const { error } = await supabase.from('expenses').delete().eq('id', id);
+        if (error) throw error;
+      },
+
       bulkDeleteProducts: async (ids) => {
         // Optimistic update
         const previousProducts = get().products;
@@ -480,6 +526,13 @@ export const useStore = create<StoreState>()(
             console.log(`💳 Importing ${data.transactions.length} transactions...`);
             const tData = data.transactions.map(camelToSnake);
             const { error } = await supabase.from('transactions').upsert(tData);
+            if (error) throw error;
+          }
+
+          if (data.expenses && data.expenses.length > 0) {
+            console.log(`📉 Importing ${data.expenses.length} expenses...`);
+            const eData = data.expenses.map(camelToSnake);
+            const { error } = await supabase.from('expenses').upsert(eData);
             if (error) throw error;
           }
 

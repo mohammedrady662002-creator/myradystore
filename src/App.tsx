@@ -10,6 +10,7 @@ import Finance from './pages/Finance';
 import Reports from './pages/Reports';
 import StockAudit from './pages/StockAudit';
 import Customers from './pages/Customers';
+import Expenses from './pages/Expenses';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Download, 
@@ -39,6 +40,7 @@ export default function App() {
     sales,
     transactions,
     customers,
+    expenses,
     addProduct,
     addSale,
     addTransaction,
@@ -53,7 +55,7 @@ export default function App() {
   useEffect(() => {
     // If an employee somehow ends up on a restricted tab, move them
     // Land on 'sales' by default for employee
-    if (currentUser?.role === 'employee' && ['dashboard', 'inventory', 'reports', 'audit'].includes(activeTab)) {
+    if (currentUser?.role === 'employee' && ['dashboard', 'inventory', 'reports', 'audit', 'expenses'].includes(activeTab)) {
       setActiveTab('sales');
     }
   }, [currentUser, activeTab]);
@@ -116,7 +118,8 @@ export default function App() {
         products,
         sales,
         transactions,
-        customers
+        customers,
+        expenses
       }
     };
     
@@ -159,7 +162,8 @@ export default function App() {
           products: importData.products,
           sales: importData.sales,
           transactions: importData.transactions,
-          customers: importData.customers
+          customers: importData.customers,
+          expenses: importData.expenses
         });
 
         showToast('تمت عملية الاستعادة بنجاح إلى السحابة!', 'success');
@@ -202,7 +206,7 @@ export default function App() {
 
   const renderContent = () => {
     // Role based access restriction
-    if (currentUser?.role === 'employee' && ['dashboard', 'inventory', 'audit', 'reports'].includes(activeTab)) {
+    if (currentUser?.role === 'employee' && ['dashboard', 'inventory', 'audit', 'reports', 'expenses'].includes(activeTab)) {
       return <Sales />;
     }
 
@@ -214,6 +218,7 @@ export default function App() {
       case 'audit': return <StockAudit />;
       case 'reports': return <Reports />;
       case 'customers': return <Customers />;
+      case 'expenses': return <Expenses />;
       default: return <Dashboard />;
     }
   };

@@ -16,14 +16,16 @@ import {
   History,
   CreditCard,
   ShoppingCart,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Download,
+  Upload
 } from 'lucide-react';
 import { useStore, Customer, Sale } from '../lib/store';
 import { cn, formatCurrency, generateId, formatArabicDate } from '../lib/utils';
 import { ImageUpload } from '../components/ImageUpload';
 
 export default function Customers() {
-  const { customers, sales, transactions, addCustomer, updateCustomer, deleteCustomer, currentUser, addTransaction } = useStore();
+  const { customers, sales, transactions, addCustomer, updateCustomer, deleteCustomer, currentUser, addTransaction, importBulkData } = useStore();
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
@@ -98,6 +100,43 @@ export default function Customers() {
     }
   };
 
+  const exportCustomers = () => {
+    const data = {
+      customers,
+      debts_snapshot: customers.map(c => ({ name: c.name, debt: c.totalDebt })),
+      exportDate: new Date().toISOString()
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `عملاء_وديون_راضي_${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+  };
+
+  const importCustomers = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const json = event.target?.result as string;
+        const imported = JSON.parse(json);
+        const customersToImport = imported.customers || imported;
+        
+        if (confirm(`هل تريد استيراد ${customersToImport.length} عميل؟ سيتم دمجهم مع البيانات الحالية.`)) {
+          await importBulkData({ customers: customersToImport });
+          alert('تم استيراد بيانات العملاء بنجاح');
+        }
+      } catch (err) {
+        alert('خطأ في قراءة الملف');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
   return (
     <div className="space-y-12 pb-32 lg:pb-12" dir="rtl">
       {/* Header & Quick Summary */}
@@ -123,19 +162,35 @@ export default function Customers() {
           </div>
           
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-6 w-full lg:w-auto">
-            {/* Elegant Summary Box */}
-            <div className="bg-white/5 backdrop-blur-md border border-white/10 px-8 py-6 rounded-[2.5rem] flex items-center gap-8 shadow-inner group">
-              <div className="flex flex-col">
-                <span className="text-[10px] font-black uppercase text-rose-400 tracking-[0.2em] mb-2">إجمالي مستحقاتك لدى العملاء</span>
-                <div className="flex items-end gap-2">
-                  <span className="text-4xl font-black text-white tracking-tighter leading-none">
-                    {formatCurrency(customerStats.totalDebt).split(' ')[0]}
-                  </span>
-                  <span className="text-sm font-black text-primary uppercase pb-1">ج.م</span>
-                </div>
+            <div className="flex flex-col gap-2">
+              <div className="flex gap-2">
+                <button 
+                  onClick={exportCustomers}
+                  className="flex-1 bg-white/10 hover:bg-white/20 text-white p-4 rounded-2xl transition-all flex items-center justify-center gap-2 text-[10px] font-black border border-white/10"
+                  title="تصدير بيانات العملاء والديون"
+                >
+                  <Download size={14} />
+                  تصدير
+                </button>
+                <label className="flex-1 bg-white/10 hover:bg-white/20 text-white p-4 rounded-2xl transition-all flex items-center justify-center gap-2 text-[10px] font-black border border-white/10 cursor-pointer">
+                  <Upload size={14} />
+                  استيراد
+                  <input type="file" className="hidden" accept=".json" onChange={importCustomers} />
+                </label>
               </div>
-              <div className="w-14 h-14 bg-primary/20 rounded-[1.5rem] flex items-center justify-center text-primary group-hover:rotate-12 transition-all duration-500 shadow-lg shadow-primary/20">
-                <HandCoins size={28} />
+              <div className="bg-white/5 backdrop-blur-md border border-white/10 px-8 py-6 rounded-[2.5rem] flex items-center gap-8 shadow-inner group">
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-black uppercase text-rose-400 tracking-[0.2em] mb-2">إجمالي مستحقاتك لدى العملاء</span>
+                  <div className="flex items-end gap-2">
+                    <span className="text-4xl font-black text-white tracking-tighter leading-none">
+                      {formatCurrency(customerStats.totalDebt).split(' ')[0]}
+                    </span>
+                    <span className="text-sm font-black text-primary uppercase pb-1">ج.م</span>
+                  </div>
+                </div>
+                <div className="w-14 h-14 bg-primary/20 rounded-[1.5rem] flex items-center justify-center text-primary group-hover:rotate-12 transition-all duration-500 shadow-lg shadow-primary/20">
+                  <HandCoins size={28} />
+                </div>
               </div>
             </div>
 
