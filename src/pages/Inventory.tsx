@@ -170,7 +170,7 @@ export default function Inventory() {
   };
 
   return (
-    <div className="space-y-8 pb-32 lg:pb-8 font-sans relative">
+    <div className="space-y-8 pb-32 lg:pb-8 font-sans relative" dir="rtl">
       {/* Floating Bulk Action Bar */}
       <AnimatePresence>
         {selectedIds.length > 0 && isOwner && (
@@ -726,6 +726,7 @@ export default function Inventory() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               className="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-[2.5rem] shadow-2xl p-8 overflow-hidden text-right"
+              dir="rtl"
             >
               <div className="mb-6 text-center">
                 <div className="w-20 h-20 bg-rose-500/10 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-4 border border-rose-500/20">
@@ -780,7 +781,8 @@ function QuickViewModal({ product, onClose }: { product: Product, onClose: () =>
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="relative bg-white dark:bg-slate-900 w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden p-8 z-10"
+        className="relative bg-white dark:bg-slate-900 w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden p-8 z-10 text-right"
+        dir="rtl"
       >
         <div className="flex justify-between items-start mb-6">
           <div className="flex items-center gap-4">
@@ -937,7 +939,8 @@ function ProductModal({
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="relative bg-white dark:bg-slate-900 w-full max-w-2xl rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] z-10"
+        className="relative bg-white dark:bg-slate-900 w-full max-w-2xl rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] z-10 text-right"
+        dir="rtl"
       >
         <div className="p-8 border-b border-slate-100 dark:border-white/5 flex items-center justify-between">
           <div>
