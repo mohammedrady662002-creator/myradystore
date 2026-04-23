@@ -53,6 +53,21 @@ export default function App() {
   const [isRestoring, setIsRestoring] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
+  // Lock scroll when settings modal is open
+  useEffect(() => {
+    if (showSettings) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.paddingRight = 'var(--removed-body-scroll-bar-size)';
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+    };
+  }, [showSettings]);
+
   useEffect(() => {
     // If an employee somehow ends up on a restricted tab, move them
     // Land on 'sales' by default for employee

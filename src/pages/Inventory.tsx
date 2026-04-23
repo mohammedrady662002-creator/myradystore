@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
@@ -58,6 +58,26 @@ export default function Inventory() {
   const [isDeletingBulk, setIsDeletingBulk] = useState(false);
   
   const isOwner = currentUser?.role === 'owner';
+
+  // Lock scroll when any modal is open
+  useEffect(() => {
+    const isAnyModalOpen = isModalOpen || isQuickViewOpen || editingProduct || selectedProduct || productToDelete;
+    if (isAnyModalOpen) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.paddingRight = 'var(--removed-body-scroll-bar-size)';
+      // Smooth scroll to top when opening a "page-like" modal on mobile
+      if (window.innerWidth < 1024) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+    };
+  }, [isModalOpen, isQuickViewOpen, editingProduct, selectedProduct, productToDelete]);
 
   const handleImageSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -712,20 +732,20 @@ export default function Inventory() {
 
       {/* Delete Confirmation Modal */}
       <AnimatePresence>
-        {productToDelete && (
-          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+        {productToDelete && createPortal(
+          <div className="fixed inset-0 z-[2000] flex items-end sm:items-center justify-center p-0 sm:p-4">
             <motion.div 
               initial={{ opacity: 0 }} 
               animate={{ opacity: 1 }} 
               exit={{ opacity: 0 }} 
               onClick={() => setProductToDelete(null)} 
-              className="absolute inset-0 bg-black/80 backdrop-blur-sm" 
+              className="absolute inset-0 bg-[#0a0c10]/95 backdrop-blur-md" 
             />
             <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              initial={{ opacity: 0, scale: 0.95, y: 100 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-[2.5rem] shadow-2xl p-8 overflow-hidden text-right"
+              exit={{ opacity: 0, scale: 0.95, y: 100 }}
+              className="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl p-8 overflow-hidden text-right"
               dir="rtl"
             >
               <div className="mb-6 text-center">
@@ -763,7 +783,8 @@ export default function Inventory() {
                 </button>
               </div>
             </motion.div>
-          </div>
+          </div>,
+          document.body
         )}
       </AnimatePresence>
     </div>

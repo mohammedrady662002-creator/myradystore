@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Wallet, 
@@ -37,6 +38,26 @@ export default function Finance() {
   const [editingTransaction, setEditingTransaction] = useState<BankTransaction | null>(null);
   const [isResetting, setIsResetting] = useState(false);
   const isOwner = currentUser?.role === 'owner';
+
+  // Lock scroll when any modal is open
+  useEffect(() => {
+    const isAnyModalOpen = isModalOpen || isAdjustModalOpen || editingTransaction;
+    if (isAnyModalOpen) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.paddingRight = 'var(--removed-body-scroll-bar-size)';
+      // Smooth scroll to top when opening a "page-like" modal on mobile
+      if (window.innerWidth < 1024) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+    };
+  }, [isModalOpen, isAdjustModalOpen, editingTransaction]);
 
   // Calculate Balances
   const balances = useMemo(() => {
@@ -343,14 +364,14 @@ function TransactionModal({ onClose, onSave, initialData }: { onClose: () => voi
 
   const isOwner = useStore(state => state.currentUser?.role === 'owner');
 
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+  return createPortal(
+    <div className="fixed inset-0 z-[1000] flex items-end sm:items-center justify-center p-0 sm:p-4">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-[#0a0c10]/95 backdrop-blur-md" />
       <motion.div 
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        initial={{ opacity: 0, scale: 0.95, y: 100 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="relative bg-white dark:bg-slate-900 w-full max-w-xl rounded-[3rem] shadow-2xl p-8 overflow-hidden"
+        exit={{ opacity: 0, scale: 0.95, y: 100 }}
+        className="relative bg-white dark:bg-slate-900 w-full max-w-xl rounded-t-[3rem] sm:rounded-[3rem] shadow-2xl p-8 overflow-hidden"
       >
         <div className="mb-8 flex justify-between items-center">
           <div>
@@ -459,7 +480,8 @@ function TransactionModal({ onClose, onSave, initialData }: { onClose: () => voi
           </button>
         </div>
       </motion.div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -474,14 +496,14 @@ function AdjustmentModal({ onClose, onSave }: { onClose: () => void, onSave: (tx
     date: new Date().toISOString(),
   });
 
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+  return createPortal(
+    <div className="fixed inset-0 z-[1000] flex items-end sm:items-center justify-center p-0 sm:p-4">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-[#0a0c10]/95 backdrop-blur-md" />
       <motion.div 
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        initial={{ opacity: 0, scale: 0.95, y: 100 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="relative bg-white dark:bg-slate-900 w-full max-w-lg rounded-[3rem] shadow-2xl p-10 overflow-hidden text-right"
+        exit={{ opacity: 0, scale: 0.95, y: 100 }}
+        className="relative bg-white dark:bg-slate-900 w-full max-w-lg rounded-t-[3rem] sm:rounded-[3rem] shadow-2xl p-10 overflow-hidden text-right"
       >
         <div className="mb-10 text-center">
             <div className="w-20 h-20 bg-amber-500/10 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -524,6 +546,7 @@ function AdjustmentModal({ onClose, onSave }: { onClose: () => void, onSave: (tx
           <button onClick={onClose} className="w-full py-4 text-slate-400 font-bold text-sm tracking-widest">إلغاء التراجع</button>
         </div>
       </motion.div>
-    </div>
+    </div>,
+    document.body
   );
 }

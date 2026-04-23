@@ -49,6 +49,25 @@ export default function Sales() {
   
   const isOwner = currentUser?.role === 'owner';
 
+  // Lock scroll when edit modal is open
+  useEffect(() => {
+    if (editingSale) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.paddingRight = 'var(--removed-body-scroll-bar-size)';
+      // Smooth scroll to top when opening a "page-like" modal on mobile
+      if (window.innerWidth < 1024) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+    };
+  }, [editingSale]);
+
   const filteredProducts = useMemo(() => {
     if (!search || search.length < 2) return [];
     return products.filter(p => 
@@ -253,52 +272,83 @@ export default function Sales() {
 
             {/* Professional Dropdown Results */}
             <AnimatePresence>
-              {filteredProducts.length > 0 && (
+              {filteredProducts.length > 0 && createPortal(
                 <motion.div 
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
-                  className="absolute top-full left-0 right-0 mt-4 bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl border border-slate-100 dark:border-white/10 overflow-hidden z-[100] p-3 space-y-1.5"
+                  className="fixed bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl border border-slate-100 dark:border-white/10 overflow-hidden z-[999] p-3 space-y-1.5 flex flex-col"
+                  style={{
+                    top: (() => {
+                      const input = document.querySelector('input[placeholder*="ابحث بالاسم أو الكود"]');
+                      if (input) {
+                        const rect = input.getBoundingClientRect();
+                        return rect.bottom + 16;
+                      }
+                      return 0;
+                    })(),
+                    left: (() => {
+                      const input = document.querySelector('input[placeholder*="ابحث بالاسم أو الكود"]');
+                      if (input) {
+                        const rect = input.getBoundingClientRect();
+                        return rect.left;
+                      }
+                      return 0;
+                    })(),
+                    width: (() => {
+                      const input = document.querySelector('input[placeholder*="ابحث بالاسم أو الكود"]');
+                      if (input) {
+                        const rect = input.getBoundingClientRect();
+                        return rect.width;
+                      }
+                      return 'auto';
+                    })()
+                  }}
                 >
                   <p className="text-[10px] font-black text-slate-400 uppercase px-4 py-2 border-b border-slate-50 dark:border-white/5 mb-2">نتائج البحث المتاحة</p>
-                  {filteredProducts.map(p => (
-                    <button
-                      key={p.id}
-                      onClick={() => addToCart(p)}
-                      className={cn(
-                        "w-full p-4 rounded-2xl flex items-center justify-between transition-all group",
-                        p.quantity > 0 ? "hover:bg-primary/5 dark:hover:bg-primary/10" : "opacity-40 cursor-not-allowed"
-                      )}
-                      disabled={p.quantity === 0}
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center overflow-hidden border border-slate-100 dark:border-white/5">
-                          {p.imageUrl ? <img src={p.imageUrl} className="w-full h-full object-cover" /> : <Smartphone size={24} className="text-slate-300" />}
+                  <div className="max-h-[60vh] overflow-y-auto custom-scrollbar">
+                    {filteredProducts.map(p => (
+                      <button
+                        key={p.id}
+                        onClick={() => {
+                          addToCart(p);
+                        }}
+                        className={cn(
+                          "w-full p-4 rounded-2xl flex items-center justify-between transition-all group text-right",
+                          p.quantity > 0 ? "hover:bg-primary/5 dark:hover:bg-primary/10" : "opacity-40 cursor-not-allowed"
+                        )}
+                        disabled={p.quantity === 0}
+                      >
+                        <div className="flex items-center gap-4 text-right">
+                          <div className="w-14 h-14 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center overflow-hidden border border-slate-100 dark:border-white/5 shrink-0">
+                            {p.imageUrl ? <img src={p.imageUrl} className="w-full h-full object-cover" /> : <Smartphone size={24} className="text-slate-300" />}
+                          </div>
+                        <div className="text-right">
+                          <p className="font-black text-sm group-hover:text-primary transition-colors">{p.name}</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-[9px] font-black uppercase bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-500">{CATEGORY_LABELS[p.category] || p.category}</span>
+                            {p.type === 'service' ? (
+                              <span className="text-[9px] font-black uppercase text-indigo-500 bg-indigo-500/5 px-2 py-0.5 rounded">خدمة</span>
+                            ) : (
+                              <span className={cn(
+                                "text-[9px] font-black uppercase px-2 py-0.5 rounded",
+                                p.quantity > 0 ? "text-emerald-500 bg-emerald-500/5" : "text-rose-500 bg-rose-500/5"
+                              )}>
+                                متبقي: {p.quantity}
+                              </span>
+                            )}
+                          </div>
                         </div>
-                      <div className="text-right">
-                        <p className="font-black text-sm group-hover:text-primary transition-colors">{p.name}</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-[9px] font-black uppercase bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-500">{CATEGORY_LABELS[p.category] || p.category}</span>
-                          {p.type === 'service' ? (
-                            <span className="text-[9px] font-black uppercase text-indigo-500 bg-indigo-500/5 px-2 py-0.5 rounded">خدمة (بدون مخزون)</span>
-                          ) : (
-                            <span className={cn(
-                              "text-[9px] font-black uppercase px-2 py-0.5 rounded",
-                              p.quantity > 0 ? "text-emerald-500 bg-emerald-500/5" : "text-rose-500 bg-rose-500/5"
-                            )}>
-                              متبقي: {p.quantity}
-                            </span>
-                          )}
                         </div>
-                      </div>
-                      </div>
-                      <div className="flex flex-col items-end gap-1">
-                        <p className="font-black text-lg text-primary">{formatCurrency(p.sellingPrice)}</p>
-                        <span className="text-[9px] font-bold text-slate-400 italic">#{p.code}</span>
-                      </div>
-                    </button>
-                  ))}
-                </motion.div>
+                        <div className="flex flex-col items-end gap-1">
+                          <p className="font-black text-lg text-primary">{formatCurrency(p.sellingPrice)}</p>
+                          <span className="text-[9px] font-bold text-slate-400 italic">#{p.code}</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>,
+                document.body
               )}
             </AnimatePresence>
           </div>
@@ -733,73 +783,97 @@ function EditSaleModal({ sale, onClose }: { sale: Sale, onClose: () => void }) {
   };
 
   return createPortal(
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+    <div className="fixed inset-0 z-[1000] flex items-end sm:items-center justify-center p-0 sm:p-4">
       <motion.div 
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        initial={{ opacity: 0 }} 
+        animate={{ opacity: 1 }} 
+        exit={{ opacity: 0 }} 
+        onClick={onClose} 
+        className="absolute inset-0 bg-[#0a0c10]/95 backdrop-blur-md" 
+      />
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.9, y: 100 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="relative bg-white dark:bg-slate-900 w-full max-w-lg rounded-[3rem] shadow-2xl p-10 overflow-hidden text-right z-50 border border-white/10"
+        exit={{ opacity: 0, scale: 0.9, y: 100 }}
+        className="relative bg-[#161b22] w-full max-w-lg rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.8)] border border-white/5 flex flex-col max-h-[95vh] sm:max-h-[90vh] overflow-hidden"
       >
-        <div className="mb-10 flex justify-between items-center">
-            <h3 className="text-2xl font-black">تعديل عملية بيع</h3>
-            <button onClick={onClose} className="text-slate-400 hover:text-rose-500"><X size={24} /></button>
+        {/* Header */}
+        <div className="px-10 pt-10 pb-6 border-b border-white/5 flex justify-between items-center bg-[#1c2128]">
+          <button 
+            onClick={onClose}
+            className="p-2 rounded-xl bg-white/5 text-slate-400 hover:text-rose-500 transition-all"
+          >
+            <X size={20} />
+          </button>
+          <div className="text-right">
+            <h3 className="text-xl font-black text-white">تعديل عملية بيع</h3>
+            <p className="text-[10px] text-slate-500 font-bold tracking-widest mt-0.5 uppercase">تحديث بيانات المعاملة السابقة بدقة</p>
+          </div>
         </div>
 
-        <div className="space-y-6">
+        <div className="flex-1 overflow-y-auto p-10 space-y-6 custom-scrollbar text-right">
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase">اسم المنتج</label>
+            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block pr-4">اسم المنتج</label>
             <input 
               type="text" 
               value={data.productName} 
               disabled 
-              className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-2xl p-4 font-bold opacity-60"
+              className="w-full bg-[#0d1117] border border-white/5 rounded-2xl p-4 font-bold text-white opacity-40 shadow-inner"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase">الكمية المباعة</label>
+              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block pr-4">الكمية المباعة</label>
               <input 
                 type="number" 
                 value={data.quantity}
                 onChange={(e) => setData(prev => ({ ...prev, quantity: Number(e.target.value), finalPrice: (prev.unitPrice || 0) * Number(e.target.value) - (prev.discount || 0) }))}
-                className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-2xl p-4 font-black"
+                className="w-full bg-[#0d1117] border border-white/5 rounded-2xl p-4 font-black text-white shadow-inner focus:border-primary/20 outline-none transition-all"
               />
             </div>
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase">سعر الوحدة</label>
+              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block pr-4">سعر الوحدة</label>
               <input 
                 type="number" 
                 value={data.unitPrice}
                 onChange={(e) => setData(prev => ({ ...prev, unitPrice: Number(e.target.value), finalPrice: Number(e.target.value) * (prev.quantity || 0) - (prev.discount || 0) }))}
-                className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-2xl p-4 font-black"
+                className="w-full bg-[#0d1117] border border-white/5 rounded-2xl p-4 font-black text-white shadow-inner focus:border-primary/20 outline-none transition-all"
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase">الخصم الإجمالي</label>
+            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block pr-4">الخصم الإجمالي</label>
             <input 
               type="number" 
               value={data.discount}
               onChange={(e) => setData(prev => ({ ...prev, discount: Number(e.target.value), finalPrice: (prev.unitPrice || 0) * (prev.quantity || 0) - Number(e.target.value) }))}
-              className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-2xl p-4 font-black text-rose-500"
+              className="w-full bg-[#0d1117] border border-white/5 rounded-2xl p-4 font-black text-rose-500 shadow-inner focus:border-rose-500/20 outline-none transition-all"
             />
           </div>
 
-          <div className="p-6 bg-primary/5 rounded-3xl border border-primary/10">
-            <p className="text-[10px] font-black text-primary uppercase mb-1">المبلغ النهائي بعد التعديل</p>
-            <p className="text-3xl font-black">{formatCurrency(data.finalPrice)}</p>
+          <div className="p-8 bg-primary/5 rounded-[2rem] border border-primary/10 shadow-lg mt-4">
+            <p className="text-[10px] font-black text-primary uppercase mb-2 tracking-[0.2em]">المبلغ النهائي الجديد</p>
+            <p className="text-3xl font-black text-white tracking-tighter">{formatCurrency(data.finalPrice)}</p>
           </div>
+        </div>
 
+        {/* Footer Actions */}
+        <div className="p-8 border-t border-white/5 bg-[#1c2128] flex gap-4">
+          <button 
+            onClick={onClose}
+            className="flex-1 py-5 rounded-2xl font-black text-slate-400 bg-white/5 hover:bg-white/10 transition-all text-sm"
+          >
+            إلغاء التغييرات
+          </button>
           <button 
             onClick={handleSave}
             disabled={isSaving}
-            className="w-full bg-primary text-white py-5 rounded-2xl font-black shadow-xl flex items-center justify-center gap-3 transition-all transform active:scale-95"
+            className="flex-[2] bg-primary text-white py-5 rounded-2xl font-black shadow-2xl transition-all transform active:scale-95 flex items-center justify-center gap-3 text-sm disabled:opacity-20"
           >
-            {isSaving ? <Loader2 className="animate-spin" /> : <CheckCircle2 size={20} />}
-            حفظ التعديلات في السجل
+            {isSaving ? <Loader2 size={18} className="animate-spin" /> : <ShieldCheck size={18} />}
+            <span>حفظ التعديلات</span>
           </button>
         </div>
       </motion.div>
