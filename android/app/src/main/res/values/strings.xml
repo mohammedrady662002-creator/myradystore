@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="app_name">راضي ستور</string>
-    <string name="title_activity_main">راضي ستور</string>
-    <string name="package_name">com.rady.store</string>
-    <string name="custom_url_scheme">com.rady.store</string>
-</resources>

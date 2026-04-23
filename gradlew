@@ -4,11 +4,9 @@ WRAPPER_DIR="android/gradle/wrapper"
 WRAPPER_JAR="$WRAPPER_DIR/gradle-wrapper.jar"
 
 if [ ! -f "$WRAPPER_JAR" ] || [ ! -s "$WRAPPER_JAR" ]; then
-  echo "Gradle wrapper jar missing or empty. Attempting to download..."
+  echo "Gradle wrapper jar missing or empty. Attempting to download from Capacitor source..."
   mkdir -p "$WRAPPER_DIR"
-  # Try curl then wget
-  curl -L https://github.com/gradle/gradle/raw/v8.2.0/gradle/wrapper/gradle-wrapper.jar -o "$WRAPPER_JAR" || \
-  wget -O "$WRAPPER_JAR" https://github.com/gradle/gradle/raw/v8.2.0/gradle/wrapper/gradle-wrapper.jar
+  curl -L "https://github.com/ionic-team/capacitor-android-template/raw/main/gradle/wrapper/gradle-wrapper.jar" -o "$WRAPPER_JAR"
 fi
 
 if [ ! -f "$WRAPPER_JAR" ] || [ ! -s "$WRAPPER_JAR" ]; then
