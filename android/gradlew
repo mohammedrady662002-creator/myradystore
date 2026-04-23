@@ -82,11 +82,11 @@ if [ ! -f "$WRAPPER_JAR" ] || [ ! -s "$WRAPPER_JAR" ] || [ "$(wc -c <"$WRAPPER_J
     mkdir -p "$WRAPPER_DIR"
     # Download the small bin zip which contains the wrapper jar
     curl -L https://services.gradle.org/distributions/gradle-8.2-bin.zip -o gradle-dist.zip
-    # Use npx to unzip if unzip is missing
-    npx -y extract-zip gradle-dist.zip .
+    # Use npx to unzip if unzip is missing, ensuring absolute path for target
+    npx -y extract-zip gradle-dist.zip "$PWD"
     # Copy the jar from the extracted distribution
-    cp gradle-8.2/lib/plugins/gradle-wrapper-*.jar "$WRAPPER_JAR" 2>/dev/null || \
-    find gradle-8.2 -name "gradle-wrapper.jar" -exec cp {} "$WRAPPER_JAR" \;
+    cp "$PWD/gradle-8.2/lib/plugins/gradle-wrapper-"*.jar "$WRAPPER_JAR" 2>/dev/null || \
+    find "$PWD/gradle-8.2" -name "gradle-wrapper.jar" -exec cp {} "$WRAPPER_JAR" \;
 fi
 # -----------------------------------------------------------------
 
