@@ -25,7 +25,8 @@ import {
   Wrench,
   Cpu,
   LayoutGrid,
-  List
+  List,
+  Package
 } from 'lucide-react';
 import { useStore, Product, Category } from '../lib/store';
 import { cn, formatCurrency, generateId } from '../lib/utils';
@@ -156,6 +157,20 @@ export default function Inventory() {
       setSelectedIds([]);
     } catch (err) {
       alert('حدث خطأ أثناء الحذف الجماعي');
+    } finally {
+      setIsDeletingBulk(false);
+    }
+  };
+
+  const handleBulkCategoryUpdate = async (category: string) => {
+    setIsDeletingBulk(true);
+    try {
+      const { bulkUpdateCategory } = useStore.getState();
+      await bulkUpdateCategory(selectedIds, category);
+      setSelectedIds([]);
+      alert('تم تحديث القسم لجميع العناصر المختارة بنجاح');
+    } catch (err) {
+      alert('حدث خطأ أثناء التحديث الجماعي للقسم');
     } finally {
       setIsDeletingBulk(false);
     }
@@ -434,6 +449,54 @@ export default function Inventory() {
         </div>
       )}
 
+      {/* Bulk Actions Header */}
+      <AnimatePresence>
+        {selectedIds.length > 0 && (
+          <motion.div 
+            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            className="sticky top-24 z-40 bg-slate-900 dark:bg-primary text-white p-4 sm:p-6 rounded-[2rem] shadow-2xl flex flex-col sm:flex-row items-center justify-between mb-8 border border-white/10 mx-1 gap-4"
+          >
+            <div className="flex items-center gap-4">
+              <div className="bg-white/20 backdrop-blur-md px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border border-white/10">
+                تم تحديد {selectedIds.length} صنف من المخزون
+              </div>
+              <button 
+                type="button"
+                onClick={() => setSelectedIds([])}
+                className="text-[10px] font-bold text-white/60 hover:text-white transition-colors underline underline-offset-4 cursor-pointer"
+              >
+                إلغاء التحديد
+              </button>
+            </div>
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <button 
+                type="button"
+                onClick={() => handleBulkDelete()}
+                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-rose-500 hover:bg-rose-600 rounded-2xl text-[10px] font-black transition-all cursor-pointer relative z-50 border border-white/10 shadow-lg"
+              >
+                <Trash2 size={16} />
+                حذف المختار
+              </button>
+              <button 
+                type="button"
+                onClick={() => {
+                  const newCat = prompt('أدخل معرف القسم الجديد (mobile, accessory, card, internet, parts, service):');
+                  if (newCat && ['mobile', 'accessory', 'card', 'internet', 'parts', 'service'].includes(newCat)) {
+                    handleBulkCategoryUpdate(newCat);
+                  }
+                }}
+                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 rounded-2xl text-[10px] font-black transition-all cursor-pointer relative z-50 border border-white/10 shadow-lg"
+              >
+                <Package size={16} />
+                نقل المختار لقسم آخر
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Content Area (Grid or List) */}
       {filteredProducts.length > 0 ? (
         viewType === 'grid' ? (
@@ -477,8 +540,8 @@ export default function Inventory() {
                         <span className="text-[10px] font-black uppercase mt-2">لا توجد صورة</span>
                       </div>
                     )}
-                    <div className="absolute top-2 left-2 flex flex-col gap-1 z-10">
-                      <div className="px-3 py-1 rounded-full bg-slate-900/60 backdrop-blur-md text-[10px] font-black text-white uppercase border border-white/10 tracking-widest">
+                    <div className="absolute top-2 left-2 flex flex-col gap-1 z-10 pointer-events-none">
+                      <div className="px-3 py-1 rounded-full bg-slate-900/60 backdrop-blur-md text-[10px] font-black text-white uppercase border border-white/10 tracking-widest pointer-events-none">
                         {p.type === 'service' ? 'خدمة' : 'منتج'} | {CATEGORIES.find(c => c.id === p.category)?.label || p.category}
                       </div>
                       {isOwner && p.sellingPrice > p.wholesalePrice && (
@@ -740,7 +803,7 @@ export default function Inventory() {
       {/* Delete Confirmation Modal */}
       <AnimatePresence>
         {productToDelete && createPortal(
-          <div className="fixed inset-0 z-[2000] flex items-end sm:items-center justify-center p-0 sm:p-4">
+          <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4">
             <motion.div 
               initial={{ opacity: 0 }} 
               animate={{ opacity: 1 }} 
@@ -802,8 +865,13 @@ function QuickViewModal({ product, onClose }: { product: Product, onClose: () =>
   const { currentUser } = useStore();
   const isOwner = currentUser?.role === 'owner';
 
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = 'auto'; };
+  }, []);
+
   return createPortal(
-    <div className="fixed inset-0 z-[500] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
       <motion.div 
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -899,6 +967,11 @@ function ProductModal({
   const { currentUser } = useStore();
   const isOwner = currentUser?.role === 'owner';
 
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = 'auto'; };
+  }, []);
+
   const [data, setData] = useState<Partial<Product>>(initialData || {
     category: 'accessories',
     type: 'product',
@@ -955,7 +1028,7 @@ function ProductModal({
   };
 
   return createPortal(
-    <div className="fixed inset-0 z-[600] flex items-center justify-center p-4 sm:p-6 md:p-10">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 md:p-10">
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

@@ -339,7 +339,7 @@ export default function Reports() {
         {/* Product vs Service Quick View */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
           <div className="bg-primary/5 border border-primary/10 p-8 rounded-[2.5rem] relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-6 opacity-10">
+            <div className="absolute top-0 right-0 p-6 opacity-10 pointer-events-none">
                <TrendingUp size={80} />
             </div>
             <div className="relative z-10">
@@ -361,7 +361,7 @@ export default function Reports() {
           </div>
 
           <div className="bg-emerald-500/5 border border-emerald-500/10 p-8 rounded-[2.5rem] relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-6 opacity-10">
+            <div className="absolute top-0 right-0 p-6 opacity-10 pointer-events-none">
                <TrendingUp size={80} />
             </div>
             <div className="relative z-10">

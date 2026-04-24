@@ -181,26 +181,26 @@ export default function Customers() {
             </div>
           </div>
           
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-6 w-full lg:w-auto relative z-20">
-            <div className="flex flex-col gap-2">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-6 w-full lg:w-auto relative z-30">
+            <div className="flex flex-col gap-2 relative z-30">
               <div className="flex gap-2">
                 <button 
                   type="button"
                   onClick={exportCustomers}
-                  className="flex-1 bg-white/10 hover:bg-white/20 text-white p-4 rounded-2xl transition-all flex items-center justify-center gap-2 text-[10px] font-black border border-white/10 cursor-pointer"
+                  className="flex-1 bg-white/10 hover:bg-white/20 text-white p-4 rounded-2xl transition-all flex items-center justify-center gap-2 text-[10px] font-black border border-white/10 cursor-pointer relative z-40"
                   title="تصدير بيانات العملاء والديون"
                 >
                   <Download size={14} />
                   تصدير
                 </button>
-                <label className="flex-1 bg-white/10 hover:bg-white/20 text-white p-4 rounded-2xl transition-all flex items-center justify-center gap-2 text-[10px] font-black border border-white/10 cursor-pointer">
+                <label className="flex-1 bg-white/10 hover:bg-white/20 text-white p-4 rounded-2xl transition-all flex items-center justify-center gap-2 text-[10px] font-black border border-white/10 cursor-pointer relative z-40">
                   <Upload size={14} />
                   استيراد
                   <input type="file" className="hidden" accept=".json" onChange={importCustomers} />
                 </label>
               </div>
-              <div className="bg-white/5 backdrop-blur-md border border-white/10 px-8 py-6 rounded-[2.5rem] flex items-center gap-8 shadow-inner group pointer-events-auto">
-                <div className="flex flex-col">
+              <div className="bg-white/5 backdrop-blur-md border border-white/10 px-8 py-6 rounded-[2.5rem] flex items-center gap-8 shadow-inner group pointer-events-none">
+                <div className="flex flex-col z-10 pointer-events-auto">
                   <span className="text-[10px] font-black uppercase text-rose-400 tracking-[0.2em] mb-2">إجمالي مستحقاتك لدى العملاء</span>
                   <div className="flex items-end gap-2">
                     <span className="text-4xl font-black text-white tracking-tighter leading-none">
@@ -209,7 +209,7 @@ export default function Customers() {
                     <span className="text-sm font-black text-primary uppercase pb-1">ج.م</span>
                   </div>
                 </div>
-                <div className="w-14 h-14 bg-primary/20 rounded-[1.5rem] flex items-center justify-center text-primary group-hover:rotate-12 transition-all duration-500 shadow-lg shadow-primary/20">
+                <div className="w-14 h-14 bg-primary/20 rounded-[1.5rem] flex items-center justify-center text-primary group-hover:rotate-12 transition-all duration-500 shadow-lg shadow-primary/20 z-10 pointer-events-auto">
                   <HandCoins size={28} />
                 </div>
               </div>
@@ -218,7 +218,7 @@ export default function Customers() {
             <button 
               type="button"
               onClick={() => setIsModalOpen(true)}
-              className="group bg-white hover:bg-slate-50 text-slate-900 px-10 py-6 rounded-[2.5rem] font-black shadow-2xl transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-4 text-base cursor-pointer relative z-30"
+              className="group bg-white hover:bg-slate-50 text-slate-900 px-10 py-6 rounded-[2.5rem] font-black shadow-2xl transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-4 text-base cursor-pointer relative z-50"
             >
               <span>إضافة عميل</span>
               <div className="w-8 h-8 bg-slate-900 text-white rounded-full flex items-center justify-center group-hover:rotate-90 transition-transform duration-500">
@@ -480,7 +480,7 @@ export default function Customers() {
       {/* Pay Debt Modal */}
       <AnimatePresence>
         {selectedCustomer && createPortal(
-          <div className="fixed inset-0 z-[1000] flex items-end sm:items-center justify-center p-0 sm:p-4">
+          <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4">
             <motion.div 
               initial={{ opacity: 0 }} 
               animate={{ opacity: 1 }} 
@@ -604,7 +604,7 @@ export default function Customers() {
       {/* Customer History Modal */}
       <AnimatePresence>
         {showHistoryCustomer && createPortal(
-          <div className="fixed inset-0 z-[1000] flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-hidden" dir="rtl">
+          <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-hidden" dir="rtl">
             <motion.div 
               initial={{ opacity: 0 }} 
               animate={{ opacity: 1 }} 
@@ -742,7 +742,7 @@ export default function Customers() {
       {/* Delete Confirmation Modal */}
       <AnimatePresence>
         {customerToDelete && createPortal(
-          <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
              <motion.div 
               initial={{ opacity: 0 }} 
               animate={{ opacity: 1 }} 
@@ -796,7 +796,7 @@ export default function Customers() {
       {/* Add Customer Modal */}
       <AnimatePresence>
         {isModalOpen && createPortal(
-          <div className="fixed inset-0 z-[1000] flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-hidden" dir="rtl">
+          <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-hidden" dir="rtl">
             <motion.div 
               initial={{ opacity: 0 }} 
               animate={{ opacity: 1 }} 

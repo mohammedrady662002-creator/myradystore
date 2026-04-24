@@ -462,7 +462,7 @@ export default function Sales() {
 
             <div className="space-y-4 pt-8 border-t border-white/10">
               <label className="text-xs font-black uppercase text-slate-500 flex items-center gap-2">وسيلة استلام المبلغ</label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3 relative z-30">
                 {[
                   { id: 'cash', label: 'نقدي (الخزينة)', icon: Banknote },
                   { id: 'vodafone', label: 'فودافون كاش', icon: Smartphone },
@@ -471,11 +471,12 @@ export default function Sales() {
                 ].map(method => (
                   <button
                     key={method.id}
+                    type="button"
                     onClick={() => setPaymentMethod(method.id as PaymentMethod)}
                     className={cn(
-                      "flex items-center gap-3 p-4 sm:p-5 rounded-2xl border transition-all font-black text-[10px] sm:text-xs",
+                      "flex items-center gap-3 p-4 sm:p-5 rounded-2xl border transition-all font-black text-[10px] sm:text-xs relative z-40 cursor-pointer hover:scale-[1.02] active:scale-95",
                       paymentMethod === method.id 
-                        ? "bg-primary border-primary text-white shadow-xl shadow-primary/20 scale-[1.02]" 
+                        ? "bg-primary border-primary text-white shadow-xl shadow-primary/20" 
                         : "bg-white/5 border-white/10 text-slate-400 hover:border-white/20"
                     )}
                   >
@@ -581,7 +582,7 @@ export default function Sales() {
 
           {/* Large Total Display */}
           <div className="bg-white/5 p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border border-primary/20 mb-8 sm:mb-10 relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-primary/20 transition-all"></div>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-primary/20 transition-all pointer-events-none"></div>
             <div className="relative flex justify-between items-end">
               <div>
                 <p className="text-[9px] sm:text-[10px] font-black text-slate-500 mb-2 uppercase tracking-widest">إجمالي المبلغ النهائي</p>

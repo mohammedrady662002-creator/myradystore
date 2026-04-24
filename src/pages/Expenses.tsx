@@ -132,11 +132,11 @@ export default function Expenses() {
           </p>
         </div>
         
-        <div className="flex flex-wrap gap-3 relative z-10">
+        <div className="flex flex-wrap gap-3 relative z-30">
           <button 
             type="button"
             onClick={exportToCSV}
-            className="flex items-center gap-2 px-6 py-4 bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-slate-300 rounded-2xl font-black text-xs hover:bg-slate-200 dark:hover:bg-white/10 transition-all border border-slate-200 dark:border-white/10 cursor-pointer"
+            className="flex items-center gap-2 px-6 py-4 bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-slate-300 rounded-2xl font-black text-xs hover:bg-slate-200 dark:hover:bg-white/10 transition-all border border-slate-200 dark:border-white/10 cursor-pointer relative z-40"
           >
             <FileSpreadsheet size={18} />
             تصدير الملف
@@ -145,7 +145,7 @@ export default function Expenses() {
           <button 
             type="button"
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 px-8 py-4 bg-slate-900 dark:bg-primary text-white rounded-2xl font-black text-xs shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer relative z-20"
+            className="flex items-center gap-2 px-8 py-4 bg-slate-900 dark:bg-primary text-white rounded-2xl font-black text-xs shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer relative z-50"
           >
             <Plus size={18} />
             إضافة مصروف / هالك

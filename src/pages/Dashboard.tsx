@@ -228,7 +228,7 @@ export default function Dashboard() {
                 key={product.id} 
                 type="button"
                 onClick={() => setSelectedProduct(product)}
-                className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/5 p-4 rounded-2xl flex items-center gap-4 group hover:border-rose-500/50 transition-all text-right w-full active:scale-[0.98] cursor-pointer"
+                className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/5 p-4 rounded-2xl flex items-center gap-4 group hover:border-rose-500/50 transition-all text-right w-full active:scale-[0.98] cursor-pointer relative z-20"
               >
                 <div className="w-12 h-12 bg-slate-50 dark:bg-slate-800 rounded-xl overflow-hidden flex items-center justify-center text-slate-300">
                   {product.imageUrl ? <img src={product.imageUrl} className="w-full h-full object-cover" /> : <Package size={20} />}

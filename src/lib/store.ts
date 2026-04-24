@@ -160,6 +160,7 @@ export interface StoreState {
   
   // Bulk Actions
   bulkDeleteProducts: (ids: string[]) => Promise<void>;
+  bulkUpdateCategory: (ids: string[], category: string) => Promise<void>;
   migrateExistingProductsToProduct: () => Promise<void>;
   
   // Data Import
@@ -455,6 +456,14 @@ export const useStore = create<StoreState>()(
       deleteExpense: async (id) => {
         const { error } = await supabase.from('expenses').delete().eq('id', id);
         if (error) throw error;
+      },
+
+      bulkUpdateCategory: async (ids: string[], category: string) => {
+        const { error } = await supabase.from('products').update({ category }).in('id', ids);
+        if (error) throw error;
+        set(state => ({
+          products: state.products.map(p => ids.includes(p.id) ? { ...p, category: category as any } : p)
+        }));
       },
 
       bulkDeleteProducts: async (ids) => {

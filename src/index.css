@@ -74,6 +74,16 @@ button, a, input, select {
   backface-visibility: hidden;
   perspective: 1000;
   transform: translate3d(0,0,0);
+  pointer-events: auto;
+}
+
+.decorative-shape {
+  pointer-events: none !important;
+}
+
+button, a, [role="button"] {
+  cursor: pointer !important;
+  touch-action: manipulation;
 }
 
 @layer base {

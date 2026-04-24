@@ -97,7 +97,7 @@ export default function StockAudit() {
           animate={{ opacity: 1, y: 0 }}
           className="bg-slate-900 border border-white/5 p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] relative overflow-hidden group"
         >
-          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
           <div className="relative">
             <div className="p-3 bg-white/10 w-fit rounded-2xl mb-4 sm:mb-6 text-primary"><DollarSign size={24} /></div>
             <p className="text-[9px] sm:text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">إجمالي رأس المال المركون</p>
@@ -112,7 +112,7 @@ export default function StockAudit() {
           transition={{ delay: 0.1 }}
           className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/5 p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] shadow-sm relative overflow-hidden group"
         >
-          <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full -mr-12 -mt-12 group-hover:bg-emerald-500/10 transition-all"></div>
+          <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full -mr-12 -mt-12 group-hover:bg-emerald-500/10 transition-all pointer-events-none"></div>
           <div className="relative">
             <div className="p-3 bg-emerald-500/10 w-fit rounded-2xl mb-4 sm:mb-6 text-emerald-500"><TrendingUp size={24} /></div>
             <p className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">الربح المتوقع عند التصفية</p>
@@ -127,7 +127,7 @@ export default function StockAudit() {
           transition={{ delay: 0.2 }}
           className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/5 p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] shadow-sm relative overflow-hidden group col-span-1 sm:col-span-2 lg:col-span-1"
         >
-          <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/5 rounded-full -mr-12 -mt-12 group-hover:bg-indigo-500/10 transition-all"></div>
+          <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/5 rounded-full -mr-12 -mt-12 group-hover:bg-indigo-500/10 transition-all pointer-events-none"></div>
           <div className="relative">
             <div className="p-3 bg-indigo-500/10 w-fit rounded-2xl mb-4 sm:mb-6 text-indigo-500"><Package size={24} /></div>
             <p className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">عدد القطع الإجمالية</p>
