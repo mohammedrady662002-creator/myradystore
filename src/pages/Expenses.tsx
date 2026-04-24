@@ -120,6 +120,19 @@ export default function Expenses() {
     setNewExpense({ title: '', amount: 0, category: 'other', type: 'expense', notes: '' });
   };
 
+  const statsByCategory = useMemo(() => {
+    const stats: Record<string, number> = {};
+    expenses.forEach(e => {
+      stats[e.category] = (stats[e.category] || 0) + e.amount;
+    });
+    return Object.entries(stats).map(([key, value]) => ({
+      key,
+      label: CATEGORIES.find(c => c.value === key)?.label || key,
+      color: CATEGORIES.find(c => c.value === key)?.color.replace('bg-', '') || 'slate-500',
+      value
+    })).sort((a,b) => b.value - a.value);
+  }, [expenses]);
+
   return (
     <div className="space-y-8" dir="rtl">
       {/* Header */}
@@ -154,65 +167,74 @@ export default function Expenses() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-white/5 relative overflow-hidden group"
-        >
-          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 transition-all group-hover:scale-110 pointer-events-none" />
-          <div className="relative flex items-center gap-4">
-            <div className="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-500">
-              <TrendingDown size={32} />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-white/5 relative overflow-hidden group"
+          >
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 transition-all group-hover:scale-110 pointer-events-none" />
+            <div className="relative flex items-center gap-4">
+              <div className="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-500">
+                <TrendingDown size={32} />
+              </div>
+              <div>
+                <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">إجمالي المصروفات</p>
+                <h3 className="text-3xl font-black text-blue-500 tabular-nums">
+                  {totalExpenses.toLocaleString()} <span className="text-sm font-bold opacity-70">ج.م</span>
+                </h3>
+              </div>
             </div>
-            <div>
-              <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">إجمالي المصروفات</p>
-              <h3 className="text-3xl font-black text-blue-500 tabular-nums">
-                {totalExpenses.toLocaleString()} <span className="text-sm font-bold opacity-70">ج.م</span>
-              </h3>
-            </div>
-          </div>
-        </motion.div>
+          </motion.div>
 
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-white/5 relative overflow-hidden group"
-        >
-          <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/5 rounded-full -mr-16 -mt-16 transition-all group-hover:scale-110 pointer-events-none" />
-          <div className="relative flex items-center gap-4">
-            <div className="w-16 h-16 bg-rose-500/10 rounded-2xl flex items-center justify-center text-rose-500">
-              <AlertTriangle size={32} />
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-white/5 relative overflow-hidden group"
+          >
+            <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/5 rounded-full -mr-16 -mt-16 transition-all group-hover:scale-110 pointer-events-none" />
+            <div className="relative flex items-center gap-4">
+              <div className="w-16 h-16 bg-rose-500/10 rounded-2xl flex items-center justify-center text-rose-500">
+                <AlertTriangle size={32} />
+              </div>
+              <div>
+                <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">إجمالي الهالك</p>
+                <h3 className="text-3xl font-black text-rose-500 tabular-nums">
+                  {totalWaste.toLocaleString()} <span className="text-sm font-bold opacity-70">ج.م</span>
+                </h3>
+              </div>
             </div>
-            <div>
-              <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">إجمالي الهالك</p>
-              <h3 className="text-3xl font-black text-rose-500 tabular-nums">
-                {totalWaste.toLocaleString()} <span className="text-sm font-bold opacity-70">ج.م</span>
-              </h3>
-            </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
 
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="lg:col-span-1 bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-white/5 relative overflow-hidden group"
-        >
-          <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full -mr-16 -mt-16 transition-all group-hover:scale-110 pointer-events-none" />
-          <div className="relative flex items-center gap-4">
-            <div className="w-16 h-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-emerald-500">
-              <PieChart size={32} />
-            </div>
-            <div>
-              <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">إجمالي المنصرف</p>
-              <h3 className="text-3xl font-black text-emerald-500 tabular-nums">
-                {(totalExpenses + totalWaste).toLocaleString()} <span className="text-sm font-bold opacity-70">ج.م</span>
-              </h3>
-            </div>
-          </div>
-        </motion.div>
+        <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-white/5">
+           <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-6">توزيع المصروفات حسب الفئة</h4>
+           <div className="space-y-4">
+              {statsByCategory.slice(0, 4).map(cat => (
+                <div key={cat.key} className="space-y-1">
+                  <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-tighter">
+                    <span className="text-slate-500">{cat.label}</span>
+                    <span className="text-slate-900 dark:text-white">%{Math.round((cat.value / (totalExpenses + totalWaste)) * 100)}</span>
+                  </div>
+                  <div className="h-1.5 w-full bg-slate-100 dark:bg-white/10 rounded-full overflow-hidden">
+                    <motion.div 
+                      initial={{ width: 0 }}
+                      animate={{ width: `${(cat.value / (totalExpenses + totalWaste)) * 100}%` }}
+                      className="h-full rounded-full"
+                      style={{ backgroundColor: `var(--color-${cat.color})`, filter: 'brightness(1.2)' }}
+                    />
+                  </div>
+                </div>
+              ))}
+              {statsByCategory.length === 0 && (
+                <div className="h-full flex items-center justify-center text-[10px] font-bold text-slate-300 italic py-10">
+                   لا توجد بيانات كافية للتحليل
+                </div>
+              )}
+           </div>
+        </div>
       </div>
 
       {/* Filters & Search */}

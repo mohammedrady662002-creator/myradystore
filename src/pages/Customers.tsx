@@ -61,8 +61,24 @@ export default function Customers() {
     return customers.filter(c => 
       c.name.toLowerCase().includes(search.toLowerCase()) || 
       c.phone?.includes(search)
-    ).sort((a, b) => b.totalDebt - a.totalDebt);
-  }, [customers, search]);
+    ).map(c => {
+      // Calculate Loyalty and Sentiment
+      const customerSales = sales.filter(s => s.customerId === c.id);
+      const totalSalesValue = customerSales.reduce((acc, s) => acc + s.finalPrice, 0);
+      const totalProfitValue = customerSales.reduce((acc, s) => acc + s.profit, 0);
+      
+      let loyalty: 'VIP' | 'Regular' | 'New' = 'New';
+      if (customerSales.length > 10 || totalSalesValue > 10000) loyalty = 'VIP';
+      else if (customerSales.length > 3) loyalty = 'Regular';
+
+      // Debt Sentiment: Happy if debt is 0 or credit, Angry if high debt
+      let sentiment: 'positive' | 'neutral' | 'negative' = 'neutral';
+      if (c.totalDebt <= 0) sentiment = 'positive';
+      else if (c.totalDebt > 5000) sentiment = 'negative';
+
+      return { ...c, loyalty, totalSalesValue, totalProfitValue, sentiment };
+    }).sort((a, b) => b.totalDebt - a.totalDebt);
+  }, [customers, search, sales]);
 
   const customerStats = useMemo(() => {
     const totals = customers.reduce((acc, c) => {
@@ -301,27 +317,45 @@ export default function Customers() {
                 transition={{ delay: i * 0.05 }}
                 className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-white/5 shadow-sm hover:shadow-xl transition-all group relative overflow-hidden"
               >
-                <div className="flex justify-between items-start mb-6">
-                  <div className="w-16 h-16 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center font-black text-slate-400 group-hover:scale-110 transition-transform overflow-hidden border border-slate-100 dark:border-white/5">
-                    {customer.imageUrl ? (
-                      <img src={customer.imageUrl} alt={customer.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                    ) : (
-                      <span className="text-xl uppercase">{customer.name[0]}</span>
-                    )}
+                  <div className="flex justify-between items-start mb-6">
+                  <div className="relative">
+                    <div className="w-16 h-16 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center font-black text-slate-400 group-hover:scale-110 transition-transform overflow-hidden border border-slate-100 dark:border-white/5">
+                      {customer.imageUrl ? (
+                        <img src={customer.imageUrl} alt={customer.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                      ) : (
+                        <span className="text-xl uppercase">{customer.name[0]}</span>
+                      )}
+                    </div>
+                    {/* Loyalty Badge */}
+                    <div className={cn(
+                      "absolute -bottom-2 -right-2 px-2 py-0.5 rounded-lg text-[8px] font-black uppercase text-white shadow-lg z-20",
+                      customer.loyalty === 'VIP' ? "bg-amber-500" : customer.loyalty === 'Regular' ? "bg-indigo-500" : "bg-slate-500"
+                    )}>
+                      {customer.loyalty}
+                    </div>
                   </div>
-                  {customer.totalDebt > 0 ? (
-                    <div className="bg-rose-500/10 text-rose-500 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase border border-rose-500/20">
-                      مديون
+                  <div className="flex flex-col items-end gap-2">
+                    {customer.totalDebt > 0 ? (
+                      <div className="bg-rose-500/10 text-rose-500 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase border border-rose-500/20">
+                        مديون
+                      </div>
+                    ) : customer.totalDebt < 0 ? (
+                      <div className="bg-emerald-500/10 text-emerald-500 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase border border-emerald-500/20">
+                        ليه فلوس
+                      </div>
+                    ) : (
+                      <div className="bg-slate-500/10 text-slate-500 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase border border-slate-500/20">
+                        خالص
+                      </div>
+                    )}
+                    {/* Sentiment Indicator */}
+                    <div className={cn(
+                      "w-4 h-4 rounded-full flex items-center justify-center",
+                      customer.sentiment === 'positive' ? "text-emerald-500" : customer.sentiment === 'negative' ? "text-rose-500" : "text-amber-500"
+                    )}>
+                      {customer.sentiment === 'positive' ? '😊' : customer.sentiment === 'negative' ? '🤬' : '😐'}
                     </div>
-                  ) : customer.totalDebt < 0 ? (
-                    <div className="bg-emerald-500/10 text-emerald-500 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase border border-emerald-500/20">
-                      ليه فلوس
-                    </div>
-                  ) : (
-                    <div className="bg-slate-500/10 text-slate-500 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase border border-slate-500/20">
-                      خالص
-                    </div>
-                  )}
+                  </div>
                 </div>
 
                 <div className="space-y-1 mb-6">

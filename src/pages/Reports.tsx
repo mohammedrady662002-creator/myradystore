@@ -102,6 +102,27 @@ export default function Reports() {
       }
     });
 
+    // Monthly Analytics (Last 6 months)
+    const monthlyData: Record<string, { label: string, sales: number, profit: number }> = {};
+    const now = new Date();
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      const monthLabel = d.toLocaleString('ar-EG', { month: 'short' });
+      monthlyData[monthKey] = { label: monthLabel, sales: 0, profit: 0 };
+    }
+
+    filteredSales.forEach(s => {
+      const date = new Date(s.date);
+      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      if (monthlyData[key]) {
+        monthlyData[key].sales += s.finalPrice;
+        monthlyData[key].profit += s.profit;
+      }
+    });
+
+    const monthlyChartData = Object.values(monthlyData);
+
     // Grouping by Category for Bar Chart
     const categories: Record<string, { name: string, profit: number, sales: number, count: number }> = {};
     
@@ -139,6 +160,7 @@ export default function Reports() {
       txCount: transactions.length,
       profitMargin,
       chartData,
+      monthlyChartData,
       methodChartData,
       categories,
       typeBreakdown
@@ -380,6 +402,33 @@ export default function Reports() {
                  </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Monthly Trend Area Chart */}
+        <div className="bg-white dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-100 dark:border-white/5 shadow-sm mb-10">
+          <div className="flex justify-between items-start mb-8">
+            <div>
+              <h3 className="text-xl font-black text-luxury">اتجاه المبيعات والأرباح (آخر 6 أشهر)</h3>
+              <p className="text-xs text-slate-400 font-bold mt-1 uppercase tracking-wider">رصد النمو الشهري وتدفق السيولة</p>
+            </div>
+            <div className="bg-indigo-500/10 text-indigo-500 p-3 rounded-2xl">
+              <Calendar size={24} />
+            </div>
+          </div>
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={reportData.monthlyChartData}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#64748b' }} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#64748b' }} />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '16px', textAlign: 'right' }}
+                />
+                <Bar dataKey="sales" name="المبيعات" fill="#6366f1" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="profit" name="الأرباح" fill="#10b981" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </div>
 

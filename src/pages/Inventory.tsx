@@ -45,6 +45,7 @@ export default function Inventory() {
   const { products, addProduct, updateProduct, deleteProduct, currentUser } = useStore();
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState<Category | 'all'>('all');
+  const [stockStatus, setStockStatus] = useState<'all' | 'low' | 'out' | 'clearance'>('all');
   const [sortBy, setSortBy] = useState<'newest' | 'name' | 'price-low' | 'price-high' | 'qty-low' | 'qty-high'>('newest');
   const [viewType, setViewType] = useState<'grid' | 'list'>('grid');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -109,7 +110,18 @@ export default function Inventory() {
     let result = products.filter((p) => {
       const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) || p.code.includes(search);
       const matchesCategory = activeCategory === 'all' || p.category === activeCategory;
-      return matchesSearch && matchesCategory;
+      
+      const totalQty = (p.quantity || 0) + (p.backroomQuantity || 0);
+      let matchesStatus = true;
+      if (stockStatus === 'low') matchesStatus = totalQty > 0 && totalQty <= 5;
+      else if (stockStatus === 'out') matchesStatus = totalQty === 0 && p.type !== 'service';
+      else if (stockStatus === 'clearance') {
+        // Clearance: items with price > 1000 and low stock or items older than 6 months (simulated here)
+        const isOld = new Date().getTime() - new Date(p.createdAt || 0).getTime() > 180 * 24 * 60 * 60 * 1000;
+        matchesStatus = isOld || (totalQty > 0 && totalQty <= 2 && p.sellingPrice > 500);
+      }
+      
+      return matchesSearch && matchesCategory && matchesStatus;
     });
 
     // Apply Sorting
@@ -358,6 +370,27 @@ export default function Inventory() {
         </div>
 
           <div className="flex flex-wrap gap-2 lg:gap-4 items-center">
+            {/* Stock Status Filters */}
+            <div className="flex bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 p-1 rounded-2xl shadow-sm">
+              {[
+                { id: 'all', label: 'الكل' },
+                { id: 'low', label: 'نواقص' },
+                { id: 'out', label: 'نفذت' },
+                { id: 'clearance', label: 'تصفية' }
+              ].map(status => (
+                <button
+                  key={status.id}
+                  onClick={() => setStockStatus(status.id as any)}
+                  className={cn(
+                    "px-4 py-2 rounded-xl text-[10px] font-black tracking-tighter transition-all",
+                    stockStatus === status.id ? "bg-slate-900 dark:bg-primary text-white shadow-lg" : "text-slate-400 hover:text-slate-600"
+                  )}
+                >
+                  {status.label}
+                </button>
+              ))}
+            </div>
+
             {/* View Toggle */}
             <div className="flex bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 p-1 rounded-2xl shadow-sm">
               <button 
