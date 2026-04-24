@@ -239,8 +239,9 @@ export default function Inventory() {
         </div>
         {isOwner && (
           <button 
+            type="button"
             onClick={() => { setEditingProduct(null); setIsModalOpen(true); }}
-            className="flex items-center gap-2 bg-slate-900 dark:bg-primary hover:bg-slate-800 dark:hover:bg-primary/90 text-white px-8 py-4 rounded-2xl font-bold transition-all shadow-xl shadow-primary/20 active:scale-95 text-xs uppercase tracking-widest"
+            className="flex items-center gap-2 bg-slate-900 dark:bg-primary hover:bg-slate-800 dark:hover:bg-primary/90 text-white px-8 py-4 rounded-2xl font-bold transition-all shadow-xl shadow-primary/20 active:scale-95 text-xs uppercase tracking-widest relative z-10 cursor-pointer"
           >
             <Plus size={18} />
             <span>{activeCategory === 'software' ? 'إضافة خدمة برمجية' : 'إضافة صنف جديد'}</span>
@@ -249,7 +250,7 @@ export default function Inventory() {
       </div>
 
       {/* Category Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 relative z-10">
         {CATEGORIES.map((cat) => {
           const catProducts = products.filter(p => p.category === cat.id);
           const totalQty = catProducts.reduce((acc, p) => acc + (p.type === 'service' ? 0 : p.quantity), 0);
@@ -285,7 +286,7 @@ export default function Inventory() {
                 </div>
               </div>
               {activeCategory === cat.id && (
-                <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-12 -mt-12 transition-transform group-hover:scale-150 duration-700"></div>
+                <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-12 -mt-12 transition-transform group-hover:scale-150 duration-700 pointer-events-none"></div>
               )}
             </div>
           );
@@ -488,8 +489,9 @@ export default function Inventory() {
                     </div>
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center p-4">
                       <button 
+                        type="button"
                         onClick={() => { setSelectedProduct(p); setIsQuickViewOpen(true); }}
-                        className="bg-white text-slate-900 px-6 py-2 rounded-xl text-[10px] font-black shadow-2xl transform translate-y-4 group-hover/img:translate-y-0 transition-all active:scale-95 uppercase tracking-widest"
+                        className="bg-white text-slate-900 px-6 py-2 rounded-xl text-[10px] font-black shadow-2xl transform translate-y-4 group-hover/img:translate-y-0 transition-all active:scale-95 cursor-pointer relative z-10 uppercase tracking-widest"
                       >
                         بيانات تفصيلية
                       </button>
@@ -555,16 +557,18 @@ export default function Inventory() {
                     )}
 
                     {isOwner && (
-                      <div className="pt-4 mt-2 border-t border-slate-50 dark:border-white/5 flex gap-2">
+                      <div className="pt-4 mt-2 border-t border-slate-50 dark:border-white/5 flex gap-2 relative z-10">
                         <button 
+                          type="button"
                           onClick={() => { setEditingProduct(p); setIsModalOpen(true); }}
-                          className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 hover:bg-primary/10 hover:text-primary transition-all text-[10px] font-black uppercase tracking-wider"
+                          className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 hover:bg-primary/10 hover:text-primary transition-all text-[10px] font-black cursor-pointer uppercase tracking-wider relative z-10"
                         >
                           <Edit size={14} /> <span className="hidden sm:inline">تعديل</span>
                         </button>
                         <button 
+                          type="button"
                           onClick={() => setProductToDelete(p)}
-                          className="p-2.5 rounded-xl bg-slate-50 dark:bg-white/5 hover:bg-rose-500/10 hover:text-rose-500 transition-all text-slate-400"
+                          className="p-2.5 rounded-xl bg-slate-50 dark:bg-white/5 hover:bg-rose-500/10 hover:text-rose-500 transition-all text-slate-400 cursor-pointer relative z-10"
                         >
                           <Trash2 size={16} />
                         </button>
@@ -659,22 +663,25 @@ export default function Inventory() {
                         )}
                         {isOwner && (
                           <td className="p-5">
-                            <div className="flex items-center justify-center gap-2">
+                            <div className="flex items-center justify-center gap-2 relative z-10">
                               <button 
+                                type="button"
                                 onClick={() => { setEditingProduct(p); setIsModalOpen(true); }}
-                                className="p-2.5 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-primary/10 hover:text-primary transition-all text-slate-400"
+                                className="p-2.5 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-primary/10 hover:text-primary transition-all text-slate-400 cursor-pointer"
                               >
                                 <Edit size={16} />
                               </button>
                               <button 
+                                type="button"
                                 onClick={() => setProductToDelete(p)}
-                                className="p-2.5 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-rose-500/10 hover:text-rose-500 transition-all text-slate-400"
+                                className="p-2.5 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-rose-500/10 hover:text-rose-500 transition-all text-slate-400 cursor-pointer"
                               >
                                 <Trash2 size={16} />
                               </button>
                               <button 
+                                type="button"
                                 onClick={() => { setSelectedProduct(p); setIsQuickViewOpen(true); }}
-                                className="p-2.5 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 transition-all text-slate-400"
+                                className="p-2.5 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 transition-all text-slate-400 cursor-pointer"
                               >
                                 <ChevronRight size={16} />
                               </button>

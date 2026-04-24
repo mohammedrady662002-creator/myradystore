@@ -598,9 +598,10 @@ export default function Sales() {
           </div>
 
           <button 
+            type="button"
             onClick={handleCheckout}
             disabled={cart.length === 0}
-            className="w-full bg-primary hover:bg-primary/90 text-white font-black py-5 sm:py-7 rounded-[1.5rem] sm:rounded-[2rem] shadow-2xl shadow-primary/30 transition-all transform active:scale-95 disabled:opacity-50 disabled:grayscale text-lg sm:text-xl flex items-center justify-center gap-4 group"
+            className="w-full bg-primary hover:bg-primary/90 text-white font-black py-5 sm:py-7 rounded-[1.5rem] sm:rounded-[2rem] shadow-2xl shadow-primary/30 transition-all transform active:scale-95 disabled:opacity-50 disabled:grayscale text-lg sm:text-xl flex items-center justify-center gap-4 group cursor-pointer relative z-20 pointer-events-auto"
           >
             <span>تأكيد الفاتورة وإتمام البيع</span>
             <ChevronLeft size={24} className="group-hover:-translate-x-2 transition-transform" />

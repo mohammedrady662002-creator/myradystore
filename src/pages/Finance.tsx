@@ -118,28 +118,31 @@ export default function Finance() {
           <h2 className="text-2xl font-black tracking-tight mb-1">الماليات والدفع</h2>
           <p className="text-slate-500 dark:text-slate-400 font-medium text-sm">إدارة الأرصدة والتحويلات المالية الموحدة</p>
         </div>
-        <div className="flex items-center gap-3 w-full md:w-auto">
+        <div className="flex items-center gap-3 w-full md:w-auto relative z-10">
           {isOwner && (
             <>
               <button 
+                type="button"
                 onClick={handleReset}
                 disabled={isResetting}
-                className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-rose-500/10 text-rose-500 px-6 py-4 rounded-2xl font-bold border border-rose-500/20 active:scale-95 text-sm disabled:opacity-50"
+                className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-rose-500/10 text-rose-500 px-6 py-4 rounded-2xl font-bold border border-rose-500/20 active:scale-95 text-sm disabled:opacity-50 cursor-pointer"
               >
                 {isResetting ? <Loader2 className="animate-spin" size={18} /> : <Trash2 size={18} />}
                 تصفير كافة البيانات
               </button>
               <button 
+                type="button"
                 onClick={() => setIsAdjustModalOpen(true)}
-                className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-6 py-4 rounded-2xl font-bold border border-slate-200 dark:border-white/5 active:scale-95 text-sm"
+                className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-6 py-4 rounded-2xl font-bold border border-slate-200 dark:border-white/5 active:scale-95 text-sm cursor-pointer"
               >
                 تعديل رصيد
               </button>
             </>
           )}
           <button 
+            type="button"
             onClick={() => setIsModalOpen(true)}
-            className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-primary text-white px-6 py-4 rounded-2xl font-black shadow-lg shadow-primary/25 active:scale-95 text-sm"
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-primary text-white px-6 py-4 rounded-2xl font-black shadow-lg shadow-primary/25 active:scale-95 text-sm cursor-pointer"
           >
             <ArrowRightLeft size={20} />
             <span>تحويل / معاملة</span>
@@ -157,9 +160,9 @@ export default function Finance() {
             transition={{ delay: i * 0.1 }}
             className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-100 dark:border-white/5 shadow-sm group hover:border-primary/30 transition-all relative overflow-hidden"
           >
-            <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full -mr-12 -mt-12 transition-all group-hover:bg-primary/10"></div>
+            <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full -mr-12 -mt-12 transition-all group-hover:bg-primary/10 pointer-events-none"></div>
             
-            <div className="flex justify-between items-start mb-6 relative">
+            <div className="flex justify-between items-start mb-6 relative z-10 w-full">
               <div className={cn(
                 "p-4 rounded-2xl",
                 acc.color === 'emerald' ? "bg-emerald-500/10 text-emerald-500" :

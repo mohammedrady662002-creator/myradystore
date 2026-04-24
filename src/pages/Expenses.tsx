@@ -132,18 +132,20 @@ export default function Expenses() {
           </p>
         </div>
         
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap gap-3 relative z-10">
           <button 
+            type="button"
             onClick={exportToCSV}
-            className="flex items-center gap-2 px-6 py-4 bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-slate-300 rounded-2xl font-black text-xs hover:bg-slate-200 dark:hover:bg-white/10 transition-all border border-slate-200 dark:border-white/10"
+            className="flex items-center gap-2 px-6 py-4 bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-slate-300 rounded-2xl font-black text-xs hover:bg-slate-200 dark:hover:bg-white/10 transition-all border border-slate-200 dark:border-white/10 cursor-pointer"
           >
             <FileSpreadsheet size={18} />
             تصدير الملف
           </button>
           
           <button 
+            type="button"
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 px-8 py-4 bg-slate-900 dark:bg-primary text-white rounded-2xl font-black text-xs shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
+            className="flex items-center gap-2 px-8 py-4 bg-slate-900 dark:bg-primary text-white rounded-2xl font-black text-xs shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer relative z-20"
           >
             <Plus size={18} />
             إضافة مصروف / هالك
@@ -158,7 +160,7 @@ export default function Expenses() {
           animate={{ opacity: 1, y: 0 }}
           className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-white/5 relative overflow-hidden group"
         >
-          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 transition-all group-hover:scale-110" />
+          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 transition-all group-hover:scale-110 pointer-events-none" />
           <div className="relative flex items-center gap-4">
             <div className="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-500">
               <TrendingDown size={32} />
@@ -178,7 +180,7 @@ export default function Expenses() {
           transition={{ delay: 0.1 }}
           className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-white/5 relative overflow-hidden group"
         >
-          <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/5 rounded-full -mr-16 -mt-16 transition-all group-hover:scale-110" />
+          <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/5 rounded-full -mr-16 -mt-16 transition-all group-hover:scale-110 pointer-events-none" />
           <div className="relative flex items-center gap-4">
             <div className="w-16 h-16 bg-rose-500/10 rounded-2xl flex items-center justify-center text-rose-500">
               <AlertTriangle size={32} />
@@ -198,7 +200,7 @@ export default function Expenses() {
           transition={{ delay: 0.2 }}
           className="lg:col-span-1 bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-white/5 relative overflow-hidden group"
         >
-          <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full -mr-16 -mt-16 transition-all group-hover:scale-110" />
+          <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full -mr-16 -mt-16 transition-all group-hover:scale-110 pointer-events-none" />
           <div className="relative flex items-center gap-4">
             <div className="w-16 h-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-emerald-500">
               <PieChart size={32} />

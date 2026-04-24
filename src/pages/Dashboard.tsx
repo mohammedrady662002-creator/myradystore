@@ -150,8 +150,8 @@ export default function Dashboard() {
                 <span>سيولة جارية آمنة</span>
               </div>
             </div>
-            <Wallet className="absolute -bottom-6 -right-6 w-32 h-32 opacity-10 group-hover:scale-110 transition-transform duration-700" />
-            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full -mr-16 -mt-16 blur-3xl opacity-50" />
+            <Wallet className="absolute -bottom-6 -right-6 w-32 h-32 opacity-10 group-hover:scale-110 transition-transform duration-700 pointer-events-none" />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full -mr-16 -mt-16 blur-3xl opacity-50 pointer-events-none" />
           </div>
           
           <div className="bg-primary p-8 rounded-[2.5rem] text-white relative overflow-hidden group shadow-xl border border-white/10">
@@ -163,13 +163,13 @@ export default function Dashboard() {
                  <div className="px-2 py-0.5 bg-white/20 rounded-md text-[8px] font-black">LIVE</div>
               </div>
             </div>
-            <ShoppingCart className="absolute -bottom-6 -right-6 w-32 h-32 opacity-10 group-hover:rotate-12 transition-transform duration-700" />
+            <ShoppingCart className="absolute -bottom-6 -right-6 w-32 h-32 opacity-10 group-hover:rotate-12 transition-transform duration-700 pointer-events-none" />
           </div>
         </div>
 
         <div className="xl:col-span-2 grid grid-cols-1 lg:grid-cols-2 gap-6 relative z-10">
           <div className="glass p-8 rounded-[2.5rem] relative group luxury-shadow border border-white/5 overflow-hidden">
-            <div className="absolute top-0 left-0 w-1 h-full bg-rose-500 opacity-20" />
+            <div className="absolute top-0 left-0 w-1 h-full bg-rose-500 opacity-20 pointer-events-none" />
             <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-4 text-slate-400">إجمالي الديون (الشكك)</p>
             <h3 className="text-3xl font-black text-luxury tracking-tighter mb-2 text-rose-500">{formatCurrency(statsData.totalDebt)}</h3>
             <div className="mt-4 flex items-center justify-between">
@@ -182,8 +182,8 @@ export default function Dashboard() {
 
           {isOwner && (
             <div className="glass p-8 rounded-[2.5rem] relative group luxury-shadow border border-white/5 bg-gradient-to-br from-emerald-500/5 to-transparent overflow-hidden">
-              <div className="absolute top-0 right-0 w-1 h-full bg-emerald-500 opacity-20" />
-              <div className="flex justify-between items-start mb-4">
+              <div className="absolute top-0 right-0 w-1 h-full bg-emerald-500 opacity-20 pointer-events-none" />
+              <div className="flex justify-between items-start mb-4 relative z-10">
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">صافي الأرباح المحققة</p>
                   <p className="text-[8px] font-bold uppercase text-emerald-500 tracking-wider">السيولة الربحية الصافية</p>
@@ -193,11 +193,11 @@ export default function Dashboard() {
                   <p className="text-[9px] font-black text-emerald-500 leading-none">+{formatCurrency(statsData.potentialProfit)}</p>
                 </div>
               </div>
-              <h3 className="text-3xl font-black text-luxury tracking-tighter mb-2 text-emerald-500">
+              <h3 className="text-3xl font-black text-luxury tracking-tighter mb-2 text-emerald-500 relative z-10">
                  {formatCurrency(statsData.totalProfit)}
               </h3>
               {statsData.totalSales > 0 && (
-                <div className="flex items-center gap-2 mt-4">
+                <div className="flex items-center gap-2 mt-4 relative z-10">
                    <div className="px-2 py-0.5 bg-emerald-500 text-white text-[8px] font-black rounded-md">
                       MARKUP: {Math.round((statsData.totalProfit / (statsData.totalSales - statsData.totalProfit)) * 100)}%
                    </div>
@@ -211,7 +211,7 @@ export default function Dashboard() {
 
       {/* Notifications & Low Stock Section */}
       {statsData.lowStockItems.length > 0 && (
-        <div className="bg-rose-500/5 border border-rose-500/10 rounded-[2.5rem] p-8">
+        <div className="bg-rose-500/5 border border-rose-500/10 rounded-[2.5rem] p-8 relative z-10">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-rose-500 text-white rounded-xl shadow-lg shadow-rose-500/20 animate-pulse">
@@ -226,8 +226,9 @@ export default function Dashboard() {
             {statsData.lowStockItems.slice(0, 6).map((product) => (
               <button 
                 key={product.id} 
+                type="button"
                 onClick={() => setSelectedProduct(product)}
-                className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/5 p-4 rounded-2xl flex items-center gap-4 group hover:border-rose-500/50 transition-all text-right w-full active:scale-[0.98]"
+                className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/5 p-4 rounded-2xl flex items-center gap-4 group hover:border-rose-500/50 transition-all text-right w-full active:scale-[0.98] cursor-pointer"
               >
                 <div className="w-12 h-12 bg-slate-50 dark:bg-slate-800 rounded-xl overflow-hidden flex items-center justify-center text-slate-300">
                   {product.imageUrl ? <img src={product.imageUrl} className="w-full h-full object-cover" /> : <Package size={20} />}
@@ -245,8 +246,9 @@ export default function Dashboard() {
           {statsData.lowStockItems.length > 6 && (
             <div className="mt-8 flex justify-center">
               <button 
+                type="button"
                 onClick={() => setShowAllLowStock(true)}
-                className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/5 px-8 py-3 rounded-2xl text-xs font-black text-slate-500 hover:text-primary transition-all flex items-center gap-2"
+                className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/5 px-8 py-3 rounded-2xl text-xs font-black text-slate-500 hover:text-primary transition-all flex items-center gap-2 cursor-pointer"
               >
                 <span>عرض كافة النواقص ({statsData.lowStockItems.length})</span>
                 <ChevronRight size={14} className="rotate-180" />
@@ -257,7 +259,7 @@ export default function Dashboard() {
       )}
 
       {/* Performance Insights - Smart Indicator */}
-      <div className="bg-slate-900 border border-white/10 rounded-[2.5rem] p-8 text-white relative overflow-hidden group shadow-2xl">
+      <div className="bg-slate-900 border border-white/10 rounded-[2.5rem] p-8 text-white relative overflow-hidden group shadow-2xl z-10">
         <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="flex items-center gap-6">
             <div className="p-4 bg-primary/20 rounded-2xl border border-primary/30 group-hover:rotate-12 transition-transform duration-500">
@@ -273,11 +275,11 @@ export default function Dashboard() {
               </p>
             </div>
           </div>
-          <button className="bg-white text-slate-900 px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-primary hover:text-white transition-all shadow-xl active:scale-95">
+          <button type="button" className="bg-white text-slate-900 px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-primary hover:text-white transition-all shadow-xl active:scale-95 cursor-pointer relative z-20">
             تحليل الأداء الكامل
           </button>
         </div>
-        <div className="absolute top-0 right-1/4 w-64 h-64 bg-primary/5 rounded-full blur-3xl opacity-30" />
+        <div className="absolute top-0 right-1/4 w-64 h-64 bg-primary/5 rounded-full blur-3xl opacity-30 pointer-events-none" />
       </div>
 
       {/* Analytics Row */}

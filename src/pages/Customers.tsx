@@ -162,8 +162,8 @@ export default function Customers() {
       {/* Header & Quick Summary */}
       <div className="relative overflow-hidden bg-slate-900 dark:bg-slate-950 rounded-[3rem] p-8 sm:p-12 text-white shadow-2xl border border-white/5">
         {/* Abstract Background Patterns */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-[100px] -mr-32 -mt-32"></div>
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-emerald-500/10 rounded-full blur-[80px] -ml-24 -mb-24"></div>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-[100px] -mr-32 -mt-32 pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-emerald-500/10 rounded-full blur-[80px] -ml-24 -mb-24 pointer-events-none"></div>
         
         <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-10">
           <div className="space-y-4">
@@ -181,12 +181,13 @@ export default function Customers() {
             </div>
           </div>
           
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-6 w-full lg:w-auto">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-6 w-full lg:w-auto relative z-20">
             <div className="flex flex-col gap-2">
               <div className="flex gap-2">
                 <button 
+                  type="button"
                   onClick={exportCustomers}
-                  className="flex-1 bg-white/10 hover:bg-white/20 text-white p-4 rounded-2xl transition-all flex items-center justify-center gap-2 text-[10px] font-black border border-white/10"
+                  className="flex-1 bg-white/10 hover:bg-white/20 text-white p-4 rounded-2xl transition-all flex items-center justify-center gap-2 text-[10px] font-black border border-white/10 cursor-pointer"
                   title="تصدير بيانات العملاء والديون"
                 >
                   <Download size={14} />
@@ -198,7 +199,7 @@ export default function Customers() {
                   <input type="file" className="hidden" accept=".json" onChange={importCustomers} />
                 </label>
               </div>
-              <div className="bg-white/5 backdrop-blur-md border border-white/10 px-8 py-6 rounded-[2.5rem] flex items-center gap-8 shadow-inner group">
+              <div className="bg-white/5 backdrop-blur-md border border-white/10 px-8 py-6 rounded-[2.5rem] flex items-center gap-8 shadow-inner group pointer-events-auto">
                 <div className="flex flex-col">
                   <span className="text-[10px] font-black uppercase text-rose-400 tracking-[0.2em] mb-2">إجمالي مستحقاتك لدى العملاء</span>
                   <div className="flex items-end gap-2">
@@ -213,10 +214,11 @@ export default function Customers() {
                 </div>
               </div>
             </div>
-
+          
             <button 
+              type="button"
               onClick={() => setIsModalOpen(true)}
-              className="group bg-white hover:bg-slate-50 text-slate-900 px-10 py-6 rounded-[2.5rem] font-black shadow-2xl transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-4 text-base"
+              className="group bg-white hover:bg-slate-50 text-slate-900 px-10 py-6 rounded-[2.5rem] font-black shadow-2xl transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-4 text-base cursor-pointer relative z-30"
             >
               <span>إضافة عميل</span>
               <div className="w-8 h-8 bg-slate-900 text-white rounded-full flex items-center justify-center group-hover:rotate-90 transition-transform duration-500">
@@ -348,24 +350,26 @@ export default function Customers() {
                   </div>
                 </div>
 
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-2 relative z-10">
                   <div className="flex gap-2">
                     <button 
+                      type="button"
                       onClick={() => {
                         setSelectedCustomer(customer);
                         setActionType('pay');
                       }}
-                      className="flex-1 bg-emerald-500 text-white py-4 rounded-xl font-black text-[10px] shadow-lg shadow-emerald-500/20 active:scale-95 transition-all flex items-center justify-center gap-2"
+                      className="flex-1 bg-emerald-500 text-white py-4 rounded-xl font-black text-[10px] shadow-lg shadow-emerald-500/20 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <ArrowDownLeft size={16} />
                       <span>تحصيل</span>
                     </button>
                     <button 
+                      type="button"
                       onClick={() => {
                         setSelectedCustomer(customer);
                         setActionType('add_debt');
                       }}
-                      className="flex-1 bg-rose-500 text-white py-4 rounded-xl font-black text-[10px] shadow-lg shadow-rose-500/20 active:scale-95 transition-all flex items-center justify-center gap-2"
+                      className="flex-1 bg-rose-500 text-white py-4 rounded-xl font-black text-[10px] shadow-lg shadow-rose-500/20 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <ArrowUpRight size={16} />
                       <span>زيادة دين</span>
@@ -373,15 +377,17 @@ export default function Customers() {
                   </div>
                   <div className="flex gap-2">
                     <button 
+                      type="button"
                       onClick={() => setShowHistoryCustomer(customer)}
-                      className="flex-1 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all active:scale-95 text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2"
+                      className="flex-1 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all active:scale-95 text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <History size={14} />
                       سجل المعاملات
                     </button>
                     <button 
+                      type="button"
                       onClick={() => setCustomerToDelete(customer)}
-                      className="p-3 rounded-xl bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-all active:scale-95"
+                      className="p-3 rounded-xl bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-all active:scale-95 cursor-pointer"
                     >
                       <Trash2 size={16} />
                     </button>
@@ -394,7 +400,7 @@ export default function Customers() {
           </AnimatePresence>
         </div>
       ) : (
-        <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-white/5 overflow-hidden shadow-sm">
+        <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-white/5 overflow-hidden shadow-sm relative z-10">
           <div className="overflow-x-auto custom-scrollbar">
             <table className="w-full text-right border-collapse min-w-[800px]">
               <thead>
@@ -437,20 +443,24 @@ export default function Customers() {
                       <td className="px-8 py-6">
                         <div className="flex items-center justify-center gap-2">
                           <button 
+                            type="button"
                             onClick={() => { setSelectedCustomer(customer); setActionType('pay'); }}
-                            className="px-4 py-2 rounded-lg bg-emerald-500 text-white text-[10px] font-black hover:bg-emerald-600 transition-colors shadow-sm"
+                            className="px-4 py-2 rounded-lg bg-emerald-500 text-white text-[10px] font-black hover:bg-emerald-600 transition-colors shadow-sm cursor-pointer relative z-10"
                           >تحصيل</button>
                           <button 
+                            type="button"
                             onClick={() => { setSelectedCustomer(customer); setActionType('add_debt'); }}
-                            className="px-4 py-2 rounded-lg bg-rose-500 text-white text-[10px] font-black hover:bg-rose-600 transition-colors shadow-sm"
+                            className="px-4 py-2 rounded-lg bg-rose-500 text-white text-[10px] font-black hover:bg-rose-600 transition-colors shadow-sm cursor-pointer relative z-10"
                           >زيادة</button>
                           <button 
+                            type="button"
                             onClick={() => setShowHistoryCustomer(customer)}
-                            className="p-2 rounded-lg bg-slate-100 dark:bg-white/5 text-slate-500 hover:text-primary transition-colors"
+                            className="p-2 rounded-lg bg-slate-100 dark:bg-white/5 text-slate-500 hover:text-primary transition-colors cursor-pointer relative z-10"
                           ><History size={16} /></button>
                           <button 
+                            type="button"
                             onClick={() => setCustomerToDelete(customer)}
-                            className="p-2 rounded-lg bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-colors"
+                            className="p-2 rounded-lg bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-colors cursor-pointer relative z-10"
                           ><Trash2 size={16} /></button>
                         </div>
                       </td>
