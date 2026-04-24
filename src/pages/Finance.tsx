@@ -367,9 +367,9 @@ function TransactionModal({ onClose, onSave, initialData }: { onClose: () => voi
 
   const isOwner = useStore(state => state.currentUser?.role === 'owner');
 
-  return createPortal(
-    <div className="fixed inset-0 z-[10000] flex items-end sm:items-center justify-center p-0 sm:p-4">
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-[#0a0c10]/95 backdrop-blur-md" />
+  return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
       <motion.div 
         initial={{ opacity: 0, scale: 0.95, y: 100 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -483,8 +483,7 @@ function TransactionModal({ onClose, onSave, initialData }: { onClose: () => voi
           </button>
         </div>
       </motion.div>
-    </div>,
-    document.body
+    </div>
   );
 }
 
@@ -499,9 +498,9 @@ function AdjustmentModal({ onClose, onSave }: { onClose: () => void, onSave: (tx
     date: new Date().toISOString(),
   });
 
-  return createPortal(
-    <div className="fixed inset-0 z-[10000] flex items-end sm:items-center justify-center p-0 sm:p-4">
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-[#0a0c10]/95 backdrop-blur-md" />
+  return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
       <motion.div 
         initial={{ opacity: 0, scale: 0.95, y: 100 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -549,7 +548,6 @@ function AdjustmentModal({ onClose, onSave }: { onClose: () => void, onSave: (tx
           <button onClick={onClose} className="w-full py-4 text-slate-400 font-bold text-sm tracking-widest">إلغاء التراجع</button>
         </div>
       </motion.div>
-    </div>,
-    document.body
+    </div>
   );
 }

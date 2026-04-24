@@ -835,14 +835,14 @@ export default function Inventory() {
 
       {/* Delete Confirmation Modal */}
       <AnimatePresence>
-        {productToDelete && createPortal(
-          <div className="fixed inset-0 z-[10000] flex items-end sm:items-center justify-center p-0 sm:p-4">
+        {productToDelete && (
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
             <motion.div 
               initial={{ opacity: 0 }} 
               animate={{ opacity: 1 }} 
               exit={{ opacity: 0 }} 
               onClick={() => setProductToDelete(null)} 
-              className="absolute inset-0 bg-[#0a0c10]/95 backdrop-blur-md" 
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm" 
             />
             <motion.div 
               initial={{ opacity: 0, scale: 0.95, y: 100 }}
@@ -886,8 +886,7 @@ export default function Inventory() {
                 </button>
               </div>
             </motion.div>
-          </div>,
-          document.body
+          </div>
         )}
       </AnimatePresence>
     </div>
@@ -903,8 +902,8 @@ function QuickViewModal({ product, onClose }: { product: Product, onClose: () =>
     return () => { document.body.style.overflow = 'auto'; };
   }, []);
 
-  return createPortal(
-    <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4">
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
       <motion.div 
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -983,8 +982,7 @@ function QuickViewModal({ product, onClose }: { product: Product, onClose: () =>
 
         <button onClick={onClose} className="w-full mt-8 py-4 bg-slate-900 dark:bg-primary text-white rounded-2xl font-black text-xs">إغلاق</button>
       </motion.div>
-    </div>,
-    document.body
+    </div>
   );
 }
 
@@ -1060,20 +1058,20 @@ function ProductModal({
     }
   };
 
-  return createPortal(
-    <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4 sm:p-6 md:p-10">
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 md:p-10">
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
       />
       <motion.div 
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="relative bg-white dark:bg-slate-900 w-full max-w-2xl rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] z-10 text-right"
+        className="relative bg-white dark:bg-slate-900 w-full max-w-2xl rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] text-right"
         dir="rtl"
       >
         <div className="p-8 border-b border-slate-100 dark:border-white/5 flex items-center justify-between">
@@ -1308,7 +1306,6 @@ function ProductModal({
           </button>
         </div>
       </motion.div>
-    </div>,
-    document.body
+    </div>
   );
 }

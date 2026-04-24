@@ -431,15 +431,21 @@ export default function Dashboard() {
       </div>
       {/* Modals */}
       <AnimatePresence>
-        {showAllLowStock && (
-          <div className="fixed inset-0 z-[150] flex items-center justify-center p-4">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowAllLowStock(false)} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 30 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 30 }}
-              className="relative bg-white dark:bg-slate-900 w-full max-w-4xl rounded-[2.5rem] shadow-2xl p-8 max-h-[85vh] flex flex-col"
-            >
+      {showAllLowStock && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-hidden">
+          <motion.div 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }} 
+            onClick={() => setShowAllLowStock(false)} 
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm" 
+          />
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95, y: 30 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 30 }}
+            className="relative bg-white dark:bg-slate-900 w-full max-w-4xl rounded-[2.5rem] shadow-2xl p-8 max-h-[85vh] flex flex-col"
+          >
               <div className="flex justify-between items-center mb-8">
                 <div>
                   <h3 className="text-2xl font-black">كافة النواقص</h3>
@@ -511,9 +517,9 @@ function QuickStockUpdateModal({ product, onClose, onUpdate }: { product: Produc
   const [q1, setQ1] = useState(product.quantity);
   const [q2, setQ2] = useState(product.backroomQuantity || 0);
 
-  return createPortal(
-    <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4">
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
       <motion.div 
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -563,7 +569,6 @@ function QuickStockUpdateModal({ product, onClose, onUpdate }: { product: Produc
           </div>
         </div>
       </motion.div>
-    </div>,
-    document.body
+    </div>
   );
 }

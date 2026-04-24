@@ -233,7 +233,7 @@ export default function Customers() {
           
             <button 
               type="button"
-              onClick={() => setIsModalOpen(true)}
+              onClick={(e) => { e.stopPropagation(); setIsModalOpen(true); }}
               className="group bg-white hover:bg-slate-50 text-slate-900 px-10 py-6 rounded-[2.5rem] font-black shadow-2xl transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-4 text-base cursor-pointer relative z-50"
             >
               <span>إضافة عميل</span>
@@ -513,21 +513,21 @@ export default function Customers() {
 
       {/* Pay Debt Modal */}
       <AnimatePresence>
-        {selectedCustomer && createPortal(
-          <div className="fixed inset-0 z-[99999] flex items-end sm:items-center justify-center p-0 sm:p-4">
+        {selectedCustomer && (
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
             <motion.div 
               initial={{ opacity: 0 }} 
               animate={{ opacity: 1 }} 
               exit={{ opacity: 0 }} 
               onClick={() => setSelectedCustomer(null)} 
-              className="absolute inset-0 bg-[#0a0c10]/95 backdrop-blur-md" 
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm" 
             />
             
             <motion.div 
               initial={{ opacity: 0, scale: 0.9, y: 100 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 100 }}
-              className="relative bg-[#161b22] w-full max-w-lg rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.8)] border border-white/5 flex flex-col max-h-[95vh] sm:max-h-[90vh] overflow-hidden"
+              className="relative bg-[#161b22] w-full max-w-lg rounded-t-[2.5rem] sm:rounded-[3rem] shadow-2xl border border-white/5 flex flex-col max-h-[95vh] sm:max-h-[90vh] overflow-hidden"
             >
               {/* Header */}
               <div className="px-10 pt-10 pb-6 border-b border-white/5 flex justify-between items-center bg-[#1c2128]">
@@ -629,29 +629,28 @@ export default function Customers() {
                 </button>
               </div>
             </motion.div>
-          </div>,
-          document.body
+          </div>
         )}
       </AnimatePresence>
 
 
       {/* Customer History Modal */}
       <AnimatePresence>
-        {showHistoryCustomer && createPortal(
-          <div className="fixed inset-0 z-[99999] flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-hidden" dir="rtl">
+        {showHistoryCustomer && (
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-hidden" dir="rtl">
             <motion.div 
               initial={{ opacity: 0 }} 
               animate={{ opacity: 1 }} 
               exit={{ opacity: 0 }} 
               onClick={() => setShowHistoryCustomer(null)} 
-              className="absolute inset-0 bg-[#0a0c10]/95 backdrop-blur-md" 
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm" 
             />
             
             <motion.div 
               initial={{ opacity: 0, x: 100 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 100 }}
-              className="relative bg-[#161b22] w-full max-w-2xl rounded-t-[3rem] sm:rounded-[3rem] shadow-2xl h-[95vh] sm:h-auto sm:max-h-[85vh] flex flex-col overflow-hidden text-right z-50 border border-white/10"
+              className="relative bg-[#161b22] w-full max-w-2xl rounded-t-[3rem] sm:rounded-[3rem] shadow-2xl h-[95vh] sm:h-auto sm:max-h-[85vh] flex flex-col overflow-hidden text-right border border-white/10"
             >
               <div className="p-8 border-b border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-slate-800/20">
                 <div className="flex justify-between items-center">
@@ -767,28 +766,27 @@ export default function Customers() {
                 </div>
               </div>
             </motion.div>
-          </div>,
-          document.body
+          </div>
         )}
       </AnimatePresence>
 
 
       {/* Delete Confirmation Modal */}
       <AnimatePresence>
-        {customerToDelete && createPortal(
-          <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
+        {customerToDelete && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
              <motion.div 
               initial={{ opacity: 0 }} 
               animate={{ opacity: 1 }} 
               exit={{ opacity: 0 }} 
               onClick={() => setCustomerToDelete(null)} 
-              className="absolute inset-0 bg-black/80 backdrop-blur-sm" 
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm" 
             />
             <motion.div 
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-[2.5rem] shadow-2xl p-8 overflow-hidden text-right z-50 border border-white/10"
+              className="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-[2.5rem] shadow-2xl p-8 overflow-hidden text-right border border-white/10"
             >
               <div className="mb-6 text-center">
                 <div className="w-20 h-20 bg-rose-500/10 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-4 border border-rose-500/20">
@@ -821,28 +819,27 @@ export default function Customers() {
                 </button>
               </div>
             </motion.div>
-          </div>,
-          document.body
+          </div>
         )}
       </AnimatePresence>
 
 
       {/* Add Customer Modal */}
       <AnimatePresence>
-        {isModalOpen && createPortal(
-          <div className="fixed inset-0 z-[99999] flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-hidden" dir="rtl">
+        {isModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center overflow-hidden p-4" dir="rtl">
             <motion.div 
               initial={{ opacity: 0 }} 
               animate={{ opacity: 1 }} 
               exit={{ opacity: 0 }} 
               onClick={() => setIsModalOpen(false)} 
-              className="absolute inset-0 bg-[#0a0c10]/95 backdrop-blur-md" 
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm" 
             />
             <motion.div 
               initial={{ opacity: 0, scale: 0.9, y: 100 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 100 }}
-              className="relative bg-white dark:bg-slate-900 w-full max-w-lg rounded-t-[3rem] sm:rounded-[3rem] shadow-2xl p-10 overflow-hidden text-right z-50 border border-white/10"
+              className="relative bg-white dark:bg-slate-900 w-full max-w-lg rounded-t-[3rem] sm:rounded-[3rem] shadow-2xl p-10 overflow-hidden text-right border border-white/10"
             >
               <button 
                 onClick={() => setIsModalOpen(false)}
@@ -860,8 +857,7 @@ export default function Customers() {
 
               <AddCustomerForm onSave={() => setIsModalOpen(false)} onClose={() => setIsModalOpen(false)} />
             </motion.div>
-          </div>,
-          document.body
+          </div>
         )}
       </AnimatePresence>
 

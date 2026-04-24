@@ -273,35 +273,12 @@ export default function Sales() {
             </div>
 
             <AnimatePresence>
-              {filteredProducts.length > 0 && createPortal(
+              {filteredProducts.length > 0 && (
                 <motion.div 
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
-                  className="fixed bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl border border-slate-100 dark:border-white/10 overflow-hidden z-[99999] p-3 space-y-1.5 flex flex-col"
-                  style={{
-                    top: (() => {
-                      if (searchInputRef.current) {
-                        const rect = searchInputRef.current.getBoundingClientRect();
-                        return rect.bottom + 16;
-                      }
-                      return 200; // Default fallback to middleish
-                    })(),
-                    left: (() => {
-                      if (searchInputRef.current) {
-                        const rect = searchInputRef.current.getBoundingClientRect();
-                        return rect.left;
-                      }
-                      return 20;
-                    })(),
-                    width: (() => {
-                      if (searchInputRef.current) {
-                        const rect = searchInputRef.current.getBoundingClientRect();
-                        return rect.width;
-                      }
-                      return '90%';
-                    })()
-                  }}
+                  className="absolute bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl border border-slate-100 dark:border-white/10 overflow-hidden z-[100] p-3 space-y-1.5 flex flex-col w-full top-full mt-4"
                 >
                   <p className="text-[10px] font-black text-slate-400 uppercase px-4 py-2 border-b border-slate-50 dark:border-white/5 mb-2">نتائج البحث المتاحة</p>
                   <div className="max-h-[60vh] overflow-y-auto custom-scrollbar">
@@ -345,8 +322,7 @@ export default function Sales() {
                       </button>
                     ))}
                   </div>
-                </motion.div>,
-                document.body
+                </motion.div>
               )}
             </AnimatePresence>
           </div>
@@ -613,12 +589,12 @@ export default function Sales() {
       </div>
 
       <AnimatePresence>
-        {success && createPortal(
+        {success && (
           <motion.div 
             initial={{ opacity: 0, scale: 0.8, y: 100 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: 100 }}
-            className="fixed bottom-28 lg:bottom-12 left-1/2 -translate-x-1/2 bg-emerald-500 text-white px-10 py-8 rounded-[3rem] shadow-[0_30px_60px_-12px_rgba(16,185,129,0.45)] border-4 border-white/20 flex flex-col items-center gap-4 z-[99999] min-w-[320px]"
+            className="fixed bottom-28 lg:bottom-12 left-1/2 -translate-x-1/2 bg-emerald-500 text-white px-10 py-8 rounded-[3rem] shadow-[0_30px_60px_-12px_rgba(16,185,129,0.45)] border-4 border-white/20 flex flex-col items-center gap-4 z-50 min-w-[320px]"
           >
             <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center border-2 border-white/10">
               <CheckCircle2 size={48} className="text-white" />
@@ -630,8 +606,7 @@ export default function Sales() {
             <div className="w-full h-1 bg-white/20 rounded-full overflow-hidden mt-2">
                <motion.div initial={{ width: '100%' }} animate={{ width: 0 }} transition={{ duration: 3 }} className="h-full bg-white" />
             </div>
-          </motion.div>,
-          document.body
+          </motion.div>
         )}
       </AnimatePresence>
 
@@ -781,20 +756,20 @@ function EditSaleModal({ sale, onClose }: { sale: Sale, onClose: () => void }) {
     }
   };
 
-  return createPortal(
-    <div className="fixed inset-0 z-[99999] flex items-end sm:items-center justify-center p-0 sm:p-4">
+  return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
       <motion.div 
         initial={{ opacity: 0 }} 
         animate={{ opacity: 1 }} 
         exit={{ opacity: 0 }} 
         onClick={onClose} 
-        className="absolute inset-0 bg-[#0a0c10]/95 backdrop-blur-md" 
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm" 
       />
       <motion.div 
         initial={{ opacity: 0, scale: 0.9, y: 100 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 100 }}
-        className="relative bg-[#161b22] w-full max-w-lg rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.8)] border border-white/5 flex flex-col max-h-[95vh] sm:max-h-[90vh] overflow-hidden"
+        className="relative bg-[#161b22] w-full max-w-lg rounded-t-[2.5rem] sm:rounded-[3rem] shadow-2xl border border-white/5 flex flex-col max-h-[95vh] sm:max-h-[90vh] overflow-hidden"
       >
         {/* Header */}
         <div className="px-10 pt-10 pb-6 border-b border-white/5 flex justify-between items-center bg-[#1c2128]">
@@ -876,7 +851,6 @@ function EditSaleModal({ sale, onClose }: { sale: Sale, onClose: () => void }) {
           </button>
         </div>
       </motion.div>
-    </div>,
-    document.body
+    </div>
   );
 }
