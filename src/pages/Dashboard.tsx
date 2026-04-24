@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Plus,
@@ -510,9 +511,9 @@ function QuickStockUpdateModal({ product, onClose, onUpdate }: { product: Produc
   const [q1, setQ1] = useState(product.quantity);
   const [q2, setQ2] = useState(product.backroomQuantity || 0);
 
-  return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-black/70 backdrop-blur-md" />
+  return createPortal(
+    <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
       <motion.div 
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -562,6 +563,7 @@ function QuickStockUpdateModal({ product, onClose, onUpdate }: { product: Produc
           </div>
         </div>
       </motion.div>
-    </div>
+    </div>,
+    document.body
   );
 }

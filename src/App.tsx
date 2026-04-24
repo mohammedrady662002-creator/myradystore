@@ -397,7 +397,7 @@ export default function App() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -50 }}
               className={cn(
-                "fixed top-24 left-6 z-[9999] px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 border backdrop-blur-xl",
+                "fixed top-24 left-6 z-[20000] px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 border backdrop-blur-xl",
                 toast.type === 'success' ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500" :
                 toast.type === 'error' ? "bg-rose-500/10 border-rose-500/20 text-rose-500" :
                 "bg-blue-500/10 border-blue-500/20 text-blue-500"

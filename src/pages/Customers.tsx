@@ -480,7 +480,7 @@ export default function Customers() {
       {/* Pay Debt Modal */}
       <AnimatePresence>
         {selectedCustomer && createPortal(
-          <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4">
+          <div className="fixed inset-0 z-[99999] flex items-end sm:items-center justify-center p-0 sm:p-4">
             <motion.div 
               initial={{ opacity: 0 }} 
               animate={{ opacity: 1 }} 
@@ -604,7 +604,7 @@ export default function Customers() {
       {/* Customer History Modal */}
       <AnimatePresence>
         {showHistoryCustomer && createPortal(
-          <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-hidden" dir="rtl">
+          <div className="fixed inset-0 z-[99999] flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-hidden" dir="rtl">
             <motion.div 
               initial={{ opacity: 0 }} 
               animate={{ opacity: 1 }} 
@@ -742,7 +742,7 @@ export default function Customers() {
       {/* Delete Confirmation Modal */}
       <AnimatePresence>
         {customerToDelete && createPortal(
-          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
              <motion.div 
               initial={{ opacity: 0 }} 
               animate={{ opacity: 1 }} 
@@ -796,7 +796,7 @@ export default function Customers() {
       {/* Add Customer Modal */}
       <AnimatePresence>
         {isModalOpen && createPortal(
-          <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-hidden" dir="rtl">
+          <div className="fixed inset-0 z-[99999] flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-hidden" dir="rtl">
             <motion.div 
               initial={{ opacity: 0 }} 
               animate={{ opacity: 1 }} 

@@ -19,7 +19,7 @@ import {
 import { useStore, Expense, ExpenseCategory } from '../lib/store';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
-import { cn } from '../lib/utils';
+import { cn, formatArabicDate } from '../lib/utils';
 
 const CATEGORIES: { value: ExpenseCategory; label: string; icon: any; color: string }[] = [
   { value: 'rent', label: 'إيجار', icon: Receipt, color: 'bg-blue-500' },
@@ -277,8 +277,7 @@ export default function Expenses() {
                   >
                     <td className="px-8 py-6">
                       <div className="flex flex-col">
-                        <span className="font-bold text-xs">{format(new Date(e.date), 'dd MMMM yyyy', { locale: ar })}</span>
-                        <span className="text-[10px] text-slate-400 font-bold">{format(new Date(e.date), 'hh:mm a', { locale: ar })}</span>
+                        <span className="font-bold text-xs">{formatArabicDate(e.date)}</span>
                       </div>
                     </td>
                     <td className="px-8 py-6 font-black text-sm">{e.title}</td>

@@ -34,6 +34,7 @@ interface CartItem {
 export default function Sales() {
   const { products, addSale, updateProduct, currentUser, addTransaction, customers, addCustomer, updateCustomer } = useStore();
   const [search, setSearch] = useState('');
+  const searchInputRef = React.useRef<HTMLInputElement>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [discount, setDiscount] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
@@ -256,6 +257,7 @@ export default function Sales() {
               <Search className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <input 
+              ref={searchInputRef}
               type="text" 
               placeholder="ابحث بالاسم أو الكود (مثال: شاحن، آيفون...)" 
               value={search}
@@ -270,38 +272,34 @@ export default function Sales() {
                </div>
             </div>
 
-            {/* Professional Dropdown Results */}
             <AnimatePresence>
               {filteredProducts.length > 0 && createPortal(
                 <motion.div 
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
-                  className="fixed bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl border border-slate-100 dark:border-white/10 overflow-hidden z-[999] p-3 space-y-1.5 flex flex-col"
+                  className="fixed bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl border border-slate-100 dark:border-white/10 overflow-hidden z-[99999] p-3 space-y-1.5 flex flex-col"
                   style={{
                     top: (() => {
-                      const input = document.querySelector('input[placeholder*="ابحث بالاسم أو الكود"]');
-                      if (input) {
-                        const rect = input.getBoundingClientRect();
+                      if (searchInputRef.current) {
+                        const rect = searchInputRef.current.getBoundingClientRect();
                         return rect.bottom + 16;
                       }
-                      return 0;
+                      return 200; // Default fallback to middleish
                     })(),
                     left: (() => {
-                      const input = document.querySelector('input[placeholder*="ابحث بالاسم أو الكود"]');
-                      if (input) {
-                        const rect = input.getBoundingClientRect();
+                      if (searchInputRef.current) {
+                        const rect = searchInputRef.current.getBoundingClientRect();
                         return rect.left;
                       }
-                      return 0;
+                      return 20;
                     })(),
                     width: (() => {
-                      const input = document.querySelector('input[placeholder*="ابحث بالاسم أو الكود"]');
-                      if (input) {
-                        const rect = input.getBoundingClientRect();
+                      if (searchInputRef.current) {
+                        const rect = searchInputRef.current.getBoundingClientRect();
                         return rect.width;
                       }
-                      return 'auto';
+                      return '90%';
                     })()
                   }}
                 >
@@ -614,14 +612,13 @@ export default function Sales() {
         </div>
       </div>
 
-      {/* Success Success Popover */}
       <AnimatePresence>
         {success && createPortal(
           <motion.div 
             initial={{ opacity: 0, scale: 0.8, y: 100 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: 100 }}
-            className="fixed bottom-28 lg:bottom-12 left-1/2 -translate-x-1/2 bg-emerald-500 text-white px-10 py-8 rounded-[3rem] shadow-[0_30px_60px_-12px_rgba(16,185,129,0.45)] border-4 border-white/20 flex flex-col items-center gap-4 z-[9999] min-w-[320px]"
+            className="fixed bottom-28 lg:bottom-12 left-1/2 -translate-x-1/2 bg-emerald-500 text-white px-10 py-8 rounded-[3rem] shadow-[0_30px_60px_-12px_rgba(16,185,129,0.45)] border-4 border-white/20 flex flex-col items-center gap-4 z-[99999] min-w-[320px]"
           >
             <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center border-2 border-white/10">
               <CheckCircle2 size={48} className="text-white" />
@@ -785,7 +782,7 @@ function EditSaleModal({ sale, onClose }: { sale: Sale, onClose: () => void }) {
   };
 
   return createPortal(
-    <div className="fixed inset-0 z-[1000] flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div className="fixed inset-0 z-[99999] flex items-end sm:items-center justify-center p-0 sm:p-4">
       <motion.div 
         initial={{ opacity: 0 }} 
         animate={{ opacity: 1 }} 
