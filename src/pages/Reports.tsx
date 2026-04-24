@@ -19,7 +19,11 @@ import {
   ArrowUpCircle,
   ChevronDown,
   BarChart3,
-  Box
+  Box,
+  Zap,
+  TrendingDown,
+  Activity,
+  X
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -55,9 +59,10 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 export default function Reports() {
-  const { sales, transactions, customers, isDarkMode, currentUser } = useStore();
+  const { sales, transactions, customers, expenses, isDarkMode, currentUser } = useStore();
   const reportRef = useRef<HTMLDivElement>(null);
   const [isExporting, setIsExporting] = useState(false);
+  const [showDailyReport, setShowDailyReport] = useState(false);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const isOwner = currentUser?.role === 'owner';
 
@@ -246,6 +251,13 @@ export default function Reports() {
           <p className="text-slate-500 dark:text-slate-400 font-medium text-sm">كشف حساب مجمع وتوزيع الأرباح حسب الأقسام</p>
         </div>
         <div className="flex items-center gap-3 w-full md:w-auto">
+          <button 
+            onClick={() => setShowDailyReport(true)}
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-amber-500 text-white px-6 py-4 rounded-2xl font-black shadow-lg shadow-amber-500/20 active:scale-95 text-sm"
+          >
+            <Zap size={20} /> تحليل اليوم
+          </button>
+          
           <button 
             onClick={handlePrint}
             className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 px-6 py-4 rounded-2xl font-bold transition-all shadow-sm hover:bg-slate-50 active:scale-95 text-sm"
@@ -590,6 +602,176 @@ export default function Reports() {
           تم إنشاء هذا التقرير آلياً بواسطة نظام Rady Store - حقوق النشر 2026
         </div>
       </div>
+    </div>
+  );
+}
+
+function DailyReportModal({ onClose, sales, transactions, expenses }: { onClose: () => void, sales: any[], transactions: any[], expenses: any[] }) {
+  const modalRef = useRef<HTMLDivElement>(null);
+  const [isExporting, setIsExporting] = useState(false);
+  
+  const today = new Date().toISOString().split('T')[0];
+  const todaySales = sales.filter(s => s.date.startsWith(today));
+  const todayTransactions = transactions.filter(t => t.date.startsWith(today));
+  const todayExpenses = expenses.filter(e => e.date.startsWith(today));
+
+  const stats = useMemo(() => {
+    const totalSales = todaySales.reduce((acc, s) => acc + s.finalPrice, 0);
+    const totalProfit = todaySales.reduce((acc, s) => acc + s.profit, 0);
+    const totalCommissions = todayTransactions.reduce((acc, t) => acc + t.commission, 0);
+    const totalExpenseAmount = todayExpenses.reduce((acc, e) => acc + e.amount, 0);
+    
+    // Top Selling Product
+    const productCounts: Record<string, { count: number, name: string }> = {};
+    todaySales.forEach(s => {
+      if (!productCounts[s.productId]) productCounts[s.productId] = { count: 0, name: s.productName };
+      productCounts[s.productId].count += s.quantity;
+    });
+    const topProduct = Object.values(productCounts).sort((a,b) => b.count - a.count)[0];
+
+    return {
+      totalSales,
+      netProfit: totalProfit + totalCommissions - totalExpenseAmount,
+      totalCommissions,
+      totalExpenses: totalExpenseAmount,
+      salesCount: todaySales.length,
+      topProduct
+    };
+  }, [todaySales, todayTransactions, todayExpenses]);
+
+  const handleExport = async () => {
+    if (!modalRef.current) return;
+    setIsExporting(true);
+    try {
+      const canvas = await html2canvas(modalRef.current, { 
+        scale: 3, 
+        backgroundColor: '#ffffff',
+        useCORS: true,
+        logging: false
+      });
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'px',
+        format: [canvas.width / 3, canvas.height / 3]
+      });
+      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width / 3, canvas.height / 3);
+      pdf.save(`Daily_Analysis_${today}.pdf`);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+        className="relative bg-white dark:bg-slate-900 w-full max-w-2xl rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+      >
+        <div className="px-10 py-8 border-b border-slate-100 dark:border-white/5 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
+          <div className="flex items-center gap-3">
+             <div className="w-12 h-12 bg-amber-500 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-amber-500/20"><Zap size={24} /></div>
+             <div className="text-right">
+                <h3 className="text-xl font-black">التقرير التحليلي لليوم</h3>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{formatArabicDate(new Date().toISOString())}</p>
+             </div>
+          </div>
+          <button onClick={onClose} className="p-3 text-slate-400 hover:text-rose-500 transition-colors"><X size={24} /></button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-10" ref={modalRef} style={{ backgroundColor: 'white' }}>
+          <div className="text-slate-900 text-right" dir="rtl">
+            <div className="text-center mb-10">
+               <h1 className="text-2xl font-black mb-1">ملخص أداة اليوم</h1>
+               <div className="w-20 h-1 bg-amber-500 mx-auto rounded-full"></div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-6 mb-10">
+               <div className="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100">
+                  <p className="text-[10px] font-black text-slate-400 uppercase mb-2">إجمالي المبيعات</p>
+                  <h2 className="text-3xl font-black tracking-tighter">{formatCurrency(stats.totalSales)}</h2>
+               </div>
+               <div className="p-8 bg-emerald-500/5 rounded-[2.5rem] border border-emerald-500/10">
+                  <p className="text-[10px] font-black text-emerald-500 uppercase mb-2">صافي الربح اليومي</p>
+                  <h2 className="text-3xl font-black text-emerald-600 tracking-tighter">{formatCurrency(stats.netProfit)}</h2>
+               </div>
+            </div>
+
+            <div className="space-y-4 mb-10">
+               <div className="flex justify-between items-center p-6 bg-white border border-slate-100 rounded-2xl">
+                  <div className="flex items-center gap-4">
+                     <div className="w-10 h-10 bg-indigo-500/10 text-indigo-500 rounded-xl flex items-center justify-center"><Activity size={20} /></div>
+                     <span className="font-bold text-slate-600">عدد مبيعات اليوم</span>
+                  </div>
+                  <span className="font-black text-lg">{stats.salesCount} عملية</span>
+               </div>
+               <div className="flex justify-between items-center p-6 bg-white border border-slate-100 rounded-2xl">
+                  <div className="flex items-center gap-4">
+                     <div className="w-10 h-10 bg-rose-500/10 text-rose-500 rounded-xl flex items-center justify-center"><TrendingDown size={20} /></div>
+                     <span className="font-bold text-slate-600">إجمالي المصروفات</span>
+                  </div>
+                  <span className="font-black text-lg text-rose-500">{formatCurrency(stats.totalExpenses)}</span>
+               </div>
+               <div className="flex justify-between items-center p-6 bg-white border border-slate-100 rounded-2xl">
+                  <div className="flex items-center gap-4">
+                     <div className="w-10 h-10 bg-sky-500/10 text-sky-500 rounded-xl flex items-center justify-center"><Wallet size={20} /></div>
+                     <span className="font-bold text-slate-600">عمولات الخدمات المالية</span>
+                  </div>
+                  <span className="font-black text-lg text-sky-600">+{formatCurrency(stats.totalCommissions)}</span>
+               </div>
+            </div>
+
+            {stats.topProduct && (
+               <div className="p-8 bg-slate-900 text-white rounded-[2.5rem] mb-10 shadow-xl relative overflow-hidden text-right">
+                  <div className="absolute top-0 left-0 p-8 opacity-10"><BarChart3 size={100} /></div>
+                  <div className="relative z-10 text-right">
+                     <p className="text-[10px] font-black text-white/50 uppercase tracking-widest mb-2">المنتج الأكثر مبيعاً اليوم</p>
+                     <h3 className="text-2xl font-black">{stats.topProduct.name}</h3>
+                     <p className="mt-2 font-bold text-amber-400">تم بيع {stats.topProduct.count} قطعة اليوم</p>
+                  </div>
+               </div>
+            )}
+
+            <div className="text-[10px] text-slate-300 font-bold text-center uppercase tracking-widest">
+               نهاية التقرير التحليلي • راضي ستور
+            </div>
+          </div>
+        </div>
+
+        <div className="p-10 border-t border-slate-100 dark:border-white/5 bg-slate-50 dark:bg-slate-800/50 flex gap-4">
+           <button 
+             onClick={handleExport}
+             disabled={isExporting}
+             className="flex-1 bg-primary text-white py-5 rounded-2xl font-black shadow-xl shadow-primary/20 flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50"
+           >
+              {isExporting ? <Loader2 className="animate-spin" /> : <Download size={20} />}
+              استخراج التقرير PDF
+           </button>
+           <button 
+             onClick={() => {
+                const content = modalRef.current?.innerHTML;
+                const win = window.open('', '', 'height=700,width=700');
+                if (win) {
+                  win.document.write('<html dir="rtl"><head><title>تقرير اليوم</title>');
+                  win.document.write('<style>body{font-family: Arial, sans-serif; padding: 40px; direction:rtl; text-align:right;} .bg-slate-50{background:#f8fafc; padding:20px; border-radius:20px;} .text-3xl{font-size: 30px; font-weight:900;} .text-2xl{font-size: 24px; font-weight:900;}</style>');
+                  win.document.write('</head><body >');
+                  win.document.write(content || '');
+                  win.document.write('</body></html>');
+                  win.document.close();
+                  win.print();
+                }
+             }}
+             className="flex-1 bg-slate-900 text-white py-5 rounded-2xl font-black shadow-xl shadow-slate-900/20 flex items-center justify-center gap-3 active:scale-95"
+           >
+              <Printer size={20} /> طباعة التقرير
+           </button>
+        </div>
+      </motion.div>
     </div>
   );
 }

@@ -168,6 +168,7 @@ export interface StoreState {
   
   // Data Reset
   resetData: () => Promise<void>;
+  resetFinanceData: () => Promise<void>;
   
   // UI
   toggleDarkMode: () => void;
@@ -225,6 +226,20 @@ export const useStore = create<StoreState>()(
           set({ sales: [], transactions: [], customers: [] });
         } catch (err) {
           console.error('Reset Data Error:', err);
+          throw err;
+        }
+      },
+
+      resetFinanceData: async () => {
+        try {
+          await Promise.all([
+            supabase.from('sales').delete().neq('id', ''),
+            supabase.from('transactions').delete().neq('id', ''),
+            supabase.from('expenses').delete().neq('id', '')
+          ]);
+          set({ sales: [], transactions: [], expenses: [] });
+        } catch (err) {
+          console.error('Reset Finance Data Error:', err);
           throw err;
         }
       },

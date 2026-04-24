@@ -32,7 +32,7 @@ const ACCOUNTS: { id: PaymentMethod; label: string; icon: any; color: string }[]
 ];
 
 export default function Finance() {
-  const { transactions, sales, addTransaction, updateTransaction, deleteTransaction, resetData, currentUser } = useStore();
+  const { transactions, sales, addTransaction, updateTransaction, deleteTransaction, resetFinanceData, currentUser } = useStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAdjustModalOpen, setIsAdjustModalOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<BankTransaction | null>(null);
@@ -96,11 +96,11 @@ export default function Finance() {
   }, [transactions, sales]);
 
   const handleReset = async () => {
-    if (confirm('⚠️ هل أنت متأكد من تصفير كافة البيانات؟\nسيتم حذف سجل المبيعات والعمليات المالية نهائياً ولن تتمكن من استعادتها.')) {
+    if (confirm('⚠️ هل أنت متأكد من تصفير سجلات المالية فقط؟\nسيتم حذف سجل المبيعات والعمليات المالية والمصروفات نهائياً.\n(ملاحظة: لن يتم مسح بيانات العملاء أو مديونياتهم)')) {
       setIsResetting(true);
       try {
-        await resetData();
-        alert('تم تصفير الأرصدة والسجلات بنجاح');
+        await resetFinanceData();
+        alert('تم تصفير السجلات المالية بنجاح');
       } catch (err) {
         console.error('Reset Error:', err);
         alert('حدث خطأ أثناء تصفير البيانات');
@@ -128,7 +128,7 @@ export default function Finance() {
                 className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-rose-500/10 text-rose-500 px-6 py-4 rounded-2xl font-bold border border-rose-500/20 active:scale-95 text-sm disabled:opacity-50 cursor-pointer"
               >
                 {isResetting ? <Loader2 className="animate-spin" size={18} /> : <Trash2 size={18} />}
-                تصفير كافة البيانات
+                تصفير قسم المالية
               </button>
               <button 
                 type="button"
