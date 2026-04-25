@@ -641,7 +641,16 @@ export default function Sales() {
                   allSales.sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 50).map(sale => (
                     <tr key={sale.id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors group">
                       <td className="px-8 py-6">
-                        <p className="font-black text-sm">{sale.productName}</p>
+                        <div className="flex items-center gap-4 text-right">
+                          <div className="w-10 h-10 bg-slate-50 dark:bg-slate-800 rounded-xl flex items-center justify-center overflow-hidden border border-slate-100 dark:border-white/5 shrink-0">
+                            {products.find(p => p.id === sale.productId)?.imageUrl ? (
+                              <img src={products.find(p => p.id === sale.productId)?.imageUrl} className="w-full h-full object-cover" />
+                            ) : (
+                              <Smartphone size={16} className="text-slate-300" />
+                            )}
+                          </div>
+                          <p className="font-black text-sm">{sale.productName}</p>
+                        </div>
                       </td>
                       <td className="px-8 py-6">
                         <span className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-[10px] font-black text-slate-500">

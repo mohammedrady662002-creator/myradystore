@@ -23,6 +23,7 @@ import {
   Zap,
   TrendingDown,
   Activity,
+  Smartphone,
   X
 } from 'lucide-react';
 import { 
@@ -59,7 +60,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 export default function Reports() {
-  const { sales, transactions, customers, expenses, isDarkMode, currentUser } = useStore();
+  const { sales, transactions, customers, expenses, products, isDarkMode, currentUser } = useStore();
   const reportRef = useRef<HTMLDivElement>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [showDailyReport, setShowDailyReport] = useState(false);
@@ -260,33 +261,26 @@ export default function Reports() {
           
           <button 
             onClick={handlePrint}
-            className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 px-6 py-4 rounded-2xl font-bold transition-all shadow-sm hover:bg-slate-50 active:scale-95 text-sm"
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-slate-900 dark:bg-primary text-white px-8 py-4 rounded-2xl font-black shadow-lg shadow-primary/20 transition-all active:scale-95 text-sm"
           >
-            <Printer size={20} /> طباعة
+            <Printer size={20} /> 
+            <span>طباعة التقرير (PDF)</span>
           </button>
-          
-          <div className="flex items-center gap-2 flex-1 md:flex-none">
-            <button 
-              onClick={() => handleExport('pdf')}
-              disabled={isExporting}
-              className="flex-1 flex items-center justify-center gap-2 bg-slate-900 dark:bg-primary text-white px-6 py-4 rounded-2xl font-black shadow-lg shadow-primary/20 transition-all active:scale-95 text-sm disabled:opacity-50"
-              title="تصدير ملف PDF"
-            >
-              {isExporting ? <Loader2 size={18} className="animate-spin" /> : <FileDown size={20} />} 
-              <span>PDF</span>
-            </button>
-            <button 
-              onClick={() => handleExport('png')}
-              disabled={isExporting}
-              className="flex-1 flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-6 py-4 rounded-2xl font-black shadow-lg shadow-rose-500/25 transition-all active:scale-95 text-sm disabled:opacity-50"
-              title="تصدير كصورة PNG"
-            >
-              {isExporting ? <Loader2 size={18} className="animate-spin" /> : <Download size={20} />} 
-              <span>صورة</span>
-            </button>
-          </div>
         </div>
       </div>
+
+      {/* Daily Analysis Modal */}
+      <AnimatePresence>
+        {showDailyReport && (
+          <DailyReportModal 
+            onClose={() => setShowDailyReport(false)} 
+            sales={sales} 
+            transactions={transactions} 
+            expenses={expenses} 
+            products={products}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Report Container for Export */}
       <div 
@@ -418,7 +412,7 @@ export default function Reports() {
         </div>
 
         {/* Monthly Trend Area Chart */}
-        <div className="bg-white dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-100 dark:border-white/5 shadow-sm mb-10">
+        <div className="bg-white dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-100 dark:border-white/5 shadow-sm mb-10 print:hidden">
           <div className="flex justify-between items-start mb-8">
             <div>
               <h3 className="text-xl font-black text-luxury">اتجاه المبيعات والأرباح (آخر 6 أشهر)</h3>
@@ -445,7 +439,7 @@ export default function Reports() {
         </div>
 
         {/* Analytics Visualization Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10 print:hidden">
           <div className="bg-white dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-100 dark:border-white/5 shadow-sm">
             <div className="flex justify-between items-start mb-8">
               <div>
@@ -505,8 +499,73 @@ export default function Reports() {
           </div>
         </div>
 
-        {/* Detailed Breakdown with Collapsibles */}
-        <div className="space-y-6">
+        {/* Detailed Breakdown for Print (Always visible in print) */}
+        <div className="hidden print:block mt-10 space-y-8">
+          <h3 className="text-xl font-black border-b-2 border-slate-900 pb-2 mb-6">تفاصيل الأرباح حسب التصنيف</h3>
+          {reportData.chartData.map((cat) => (
+            <div key={cat.key} className="break-inside-avoid mb-8">
+              <div className="flex justify-between items-center bg-slate-100 p-4 rounded-xl mb-4">
+                <h4 className="font-black text-lg">{cat.name}</h4>
+                <div className="flex gap-6">
+                  <p className="font-bold text-sm">المبيعات: {formatCurrency(cat.sales)}</p>
+                  <p className="font-black text-sm text-emerald-600">الربح: {formatCurrency(cat.profit)}</p>
+                </div>
+              </div>
+              <table className="w-full text-right text-xs">
+                <thead>
+                  <tr className="border-b border-slate-200">
+                    <th className="py-2">المنتج / العملية</th>
+                    <th className="py-2">التاريخ</th>
+                    <th className="py-2">القيمة</th>
+                    <th className="py-2 text-left">الربح</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {cat.key === 'finance' ? (
+                    transactions.sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map(t => (
+                      <tr key={t.id}>
+                        <td className="py-2">
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 bg-slate-100 rounded flex items-center justify-center shrink-0">
+                               <Wallet size={12} className="text-slate-400" />
+                            </div>
+                            <span>{t.type === 'transfer' ? 'تحويل رصيد' : 'معاملة بنكية'} ({t.notes || 'خدمة مالية'})</span>
+                          </div>
+                        </td>
+                        <td className="py-2">{formatArabicDate(t.date)}</td>
+                        <td className="py-2 font-bold">{formatCurrency(t.amount)}</td>
+                        <td className="py-2 font-black text-emerald-600 text-left">+{formatCurrency(t.commission)}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    sales.filter(s => s.category === cat.key).sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map(s => (
+                      <tr key={s.id}>
+                        <td className="py-2">
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 bg-slate-100 rounded flex items-center justify-center overflow-hidden shrink-0">
+                               {products.find(p => p.id === s.productId)?.imageUrl ? (
+                                 <img src={products.find(p => p.id === s.productId)?.imageUrl} className="w-full h-full object-cover" />
+                               ) : (
+                                 <Smartphone size={12} className="text-slate-400" />
+                               )}
+                            </div>
+                            <span>{s.productName} ({s.quantity} قطعة)</span>
+                          </div>
+                        </td>
+                        <td className="py-2">{formatArabicDate(s.date)}</td>
+                        <td className="py-2 font-bold">{formatCurrency(s.finalPrice)}</td>
+                        <td className="py-2 font-black text-emerald-600 text-left">+{formatCurrency(s.profit)}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          ))}
+        </div>
+
+        {/* Detailed Breakdown with Collapsibles (UI only) */}
+        <div className="space-y-6 print:hidden">
           <h3 className="text-xl font-black flex items-center gap-3 mb-2 px-2">
             <LayoutDashboard size={24} className="text-primary" /> تفاصيل الأرباح حسب التصنيف
           </h3>
@@ -577,8 +636,19 @@ export default function Reports() {
                               sales.filter(s => s.category === cat.key).sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map(s => (
                                 <tr key={s.id} className="group">
                                   <td className="py-4 px-2">
-                                    <p className="font-bold">{s.productName}</p>
-                                    <p className="text-[10px] text-slate-400">{s.quantity} قطعة • {formatCurrency(s.unitPrice)}</p>
+                                    <div className="flex items-center gap-3 text-right">
+                                      <div className="w-10 h-10 bg-slate-50 dark:bg-slate-800 rounded-xl flex items-center justify-center overflow-hidden border border-slate-100 dark:border-white/5 shrink-0">
+                                        {products.find(p => p.id === s.productId)?.imageUrl ? (
+                                          <img src={products.find(p => p.id === s.productId)?.imageUrl} className="w-full h-full object-cover" />
+                                        ) : (
+                                          <Smartphone size={16} className="text-slate-300" />
+                                        )}
+                                      </div>
+                                      <div>
+                                        <p className="font-bold">{s.productName}</p>
+                                        <p className="text-[10px] text-slate-400">{s.quantity} قطعة • {formatCurrency(s.unitPrice)}</p>
+                                      </div>
+                                    </div>
                                   </td>
                                   <td className="py-4 px-2 text-xs font-medium text-slate-500">{formatArabicDate(s.date)}</td>
                                   <td className="py-4 px-2 font-bold">{formatCurrency(s.finalPrice)}</td>
@@ -606,25 +676,25 @@ export default function Reports() {
   );
 }
 
-function DailyReportModal({ onClose, sales, transactions, expenses }: { onClose: () => void, sales: any[], transactions: any[], expenses: any[] }) {
+function DailyReportModal({ onClose, sales, transactions, expenses, products }: { onClose: () => void, sales: any[], transactions: any[], expenses: any[], products: any[] }) {
   const modalRef = useRef<HTMLDivElement>(null);
   const [isExporting, setIsExporting] = useState(false);
   
   const today = new Date().toISOString().split('T')[0];
-  const todaySales = sales.filter(s => s.date.startsWith(today));
-  const todayTransactions = transactions.filter(t => t.date.startsWith(today));
-  const todayExpenses = expenses.filter(e => e.date.startsWith(today));
+  const todaySales = sales.filter(s => s.date.includes(today));
+  const todayTransactions = transactions.filter(t => t.date.includes(today));
+  const todayExpenses = expenses.filter(e => e.date.includes(today));
 
   const stats = useMemo(() => {
-    const totalSales = todaySales.reduce((acc, s) => acc + s.finalPrice, 0);
-    const totalProfit = todaySales.reduce((acc, s) => acc + s.profit, 0);
-    const totalCommissions = todayTransactions.reduce((acc, t) => acc + t.commission, 0);
-    const totalExpenseAmount = todayExpenses.reduce((acc, e) => acc + e.amount, 0);
+    const totalSales = todaySales.reduce((acc, s) => acc + (s.finalPrice || 0), 0);
+    const totalProfit = todaySales.reduce((acc, s) => acc + (s.profit || 0), 0);
+    const totalCommissions = todayTransactions.reduce((acc, t) => acc + (t.commission || 0), 0);
+    const totalExpenseAmount = todayExpenses.reduce((acc, e) => acc + (Number(e.amount) || 0), 0);
     
     // Top Selling Product
-    const productCounts: Record<string, { count: number, name: string }> = {};
+    const productCounts: Record<string, { count: number, name: string, id: string }> = {};
     todaySales.forEach(s => {
-      if (!productCounts[s.productId]) productCounts[s.productId] = { count: 0, name: s.productName };
+      if (!productCounts[s.productId]) productCounts[s.productId] = { count: 0, name: s.productName, id: s.productId };
       productCounts[s.productId].count += s.quantity;
     });
     const topProduct = Object.values(productCounts).sort((a,b) => b.count - a.count)[0];
@@ -729,10 +799,19 @@ function DailyReportModal({ onClose, sales, transactions, expenses }: { onClose:
             {stats.topProduct && (
                <div className="p-8 bg-slate-900 text-white rounded-[2.5rem] mb-10 shadow-xl relative overflow-hidden text-right">
                   <div className="absolute top-0 left-0 p-8 opacity-10"><BarChart3 size={100} /></div>
-                  <div className="relative z-10 text-right">
-                     <p className="text-[10px] font-black text-white/50 uppercase tracking-widest mb-2">المنتج الأكثر مبيعاً اليوم</p>
-                     <h3 className="text-2xl font-black">{stats.topProduct.name}</h3>
-                     <p className="mt-2 font-bold text-amber-400">تم بيع {stats.topProduct.count} قطعة اليوم</p>
+                  <div className="relative z-10 flex items-center justify-between gap-6">
+                     <div className="text-right">
+                        <p className="text-[10px] font-black text-white/50 uppercase tracking-widest mb-2">المنتج الأكثر مبيعاً اليوم</p>
+                        <h3 className="text-2xl font-black mb-1">{stats.topProduct.name}</h3>
+                        <p className="font-bold text-amber-400">تم بيع {stats.topProduct.count} قطعة اليوم</p>
+                     </div>
+                     <div className="w-20 h-20 bg-white/10 rounded-2xl flex items-center justify-center overflow-hidden border border-white/10 shrink-0">
+                        {products.find(p => p.id === stats.topProduct.id)?.imageUrl ? (
+                           <img src={products.find(p => p.id === stats.topProduct.id)?.imageUrl} className="w-full h-full object-cover" />
+                        ) : (
+                           <Smartphone size={32} className="text-white/20" />
+                        )}
+                     </div>
                   </div>
                </div>
             )}
@@ -743,32 +822,32 @@ function DailyReportModal({ onClose, sales, transactions, expenses }: { onClose:
           </div>
         </div>
 
-        <div className="p-10 border-t border-slate-100 dark:border-white/5 bg-slate-50 dark:bg-slate-800/50 flex gap-4">
-           <button 
-             onClick={handleExport}
-             disabled={isExporting}
-             className="flex-1 bg-primary text-white py-5 rounded-2xl font-black shadow-xl shadow-primary/20 flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50"
-           >
-              {isExporting ? <Loader2 className="animate-spin" /> : <Download size={20} />}
-              استخراج التقرير PDF
-           </button>
+        <div className="p-10 border-t border-slate-100 dark:border-white/5 bg-slate-50 dark:bg-slate-800/50">
            <button 
              onClick={() => {
                 const content = modalRef.current?.innerHTML;
-                const win = window.open('', '', 'height=700,width=700');
+                const win = window.open('', '', 'height=700,width=800');
                 if (win) {
-                  win.document.write('<html dir="rtl"><head><title>تقرير اليوم</title>');
-                  win.document.write('<style>body{font-family: Arial, sans-serif; padding: 40px; direction:rtl; text-align:right;} .bg-slate-50{background:#f8fafc; padding:20px; border-radius:20px;} .text-3xl{font-size: 30px; font-weight:900;} .text-2xl{font-size: 24px; font-weight:900;}</style>');
-                  win.document.write('</head><body >');
+                  win.document.write('<html dir="rtl"><head><title>تقرير اليوم التحليلي</title>');
+                  win.document.write('<style>');
+                  win.document.write('@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap");');
+                  win.document.write('body{font-family: Arial, sans-serif; padding: 40px; direction:rtl; text-align:right;}');
+                  win.document.write('.bg-slate-50{background:#f8fafc; padding:30px; border-radius:30px; border:1px solid #e2e8f0; margin-bottom:20px;}');
+                  win.document.write('.bg-emerald-500\/5{background:#ecfdf5; padding:30px; border-radius:30px; border:1px solid #10b981; margin-bottom:20px;}');
+                  win.document.write('.p-6{padding:20px; border:1px solid #e2e8f0; border-radius:20px; display:flex; justify-content:between; align-items:center; margin-bottom:10px;}');
+                  win.document.write('.text-3xl{font-size: 36px; font-weight:900;} .text-2xl{font-size: 28px; font-weight:900;} .text-rose-500{color:#f43f5e;} .text-emerald-600{color:#059669;} .text-sky-600{color:#0284c7;}');
+                  win.document.write('.bg-slate-900{background:#0f172a; color:white; padding:30px; border-radius:30px; margin-bottom:20px;} .text-amber-400{color:#fbbf24;}');
+                  win.document.write('</style>');
+                  win.document.write('</head><body>');
                   win.document.write(content || '');
                   win.document.write('</body></html>');
                   win.document.close();
                   win.print();
                 }
              }}
-             className="flex-1 bg-slate-900 text-white py-5 rounded-2xl font-black shadow-xl shadow-slate-900/20 flex items-center justify-center gap-3 active:scale-95"
+             className="w-full bg-slate-900 text-white py-6 rounded-2xl font-black shadow-xl shadow-slate-900/20 flex items-center justify-center gap-3 active:scale-95"
            >
-              <Printer size={20} /> طباعة التقرير
+              <Printer size={20} /> طباعة التقرير (Print / PDF)
            </button>
         </div>
       </motion.div>
